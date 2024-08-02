@@ -1,4 +1,4 @@
-import './App.css'
+import './App.scss'
 import { InfoCard } from './components'
 
 function App() {
