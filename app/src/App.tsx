@@ -1,8 +1,18 @@
+import React from 'react'
+import { Routes, Route } from 'react-router-dom'
+import { Home, Login, Register } from './pages'
 import './App.scss'
-import { InfoCard } from './components'
 
 function App() {
-  return <InfoCard></InfoCard>
+  return (
+    <div id="app">
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+      </Routes>
+    </div>
+  )
 }
 
 export default App
