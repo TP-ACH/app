@@ -1,11 +1,11 @@
 #app {
-  &:has(#side-nav){
+  &:has(#side-nav) {
     margin: 0 auto;
     text-align: center;
     padding-top: 75px;
-  
+
     padding-left: 20vw;
-  
+
     &.hide-nav {
       padding-left: 0;
     }
