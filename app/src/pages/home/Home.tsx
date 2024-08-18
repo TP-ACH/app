@@ -14,7 +14,7 @@ import {
   AccordionList,
   Icon,
 } from '@tremor/react'
-import { RiCheckboxCircleFill, RiErrorWarningFill, RiTaskFill } from '@remixicon/react'
+import { RiCheckboxCircleFill, RiErrorWarningFill } from '@remixicon/react'
 
 import './Home.scss'
 
