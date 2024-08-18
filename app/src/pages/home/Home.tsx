@@ -1,9 +1,24 @@
 import React from 'react'
 import { SideNav } from '../../components'
-import { Card, Divider, Select, SelectItem } from '@tremor/react'
+import {
+  Card,
+  Divider,
+  Select,
+  SelectItem,
+  CategoryBar,
+  ProgressBar,
+  LineChart,
+  Accordion,
+  AccordionBody,
+  AccordionHeader,
+  AccordionList,
+  Icon,
+} from '@tremor/react'
+import { RiCheckboxCircleFill, RiErrorWarningFill, RiTaskFill } from '@remixicon/react'
+
 import './Home.scss'
 
-function ContentPlaceholder() {
+/*function ContentPlaceholder() {
   return (
     <div className="relative h-full overflow-hidden rounded bg-gray-50 dark:bg-dark-tremor-background-subtle">
       <svg
@@ -19,7 +34,43 @@ function ContentPlaceholder() {
       </svg>
     </div>
   )
+}*/
+
+// PH data
+import dataPH from './data/ph.json'
+const PHdata = {
+  values: [] as { time: string; min: number; max: number; PH: number }[],
+  min: dataPH.min,
+  max: dataPH.max,
+  interval: dataPH.interval,
 }
+
+PHdata.values = dataPH.data.map((item) => {
+  return {
+    time: item.time,
+    min: PHdata.min,
+    max: PHdata.max,
+    PH: item.PH,
+  }
+})
+
+// EC data
+import dataEC from './data/ec.json'
+const ECdata = {
+  values: [] as { time: string; min: number; max: number; EC: number }[],
+  min: dataEC.min,
+  max: dataEC.max,
+  interval: dataEC.interval,
+}
+
+ECdata.values = dataEC.data.map((item) => {
+  return {
+    time: item.time,
+    min: ECdata.min,
+    max: ECdata.max,
+    EC: item.EC,
+  }
+})
 
 const Home = () => {
   return (
@@ -66,8 +117,29 @@ const Home = () => {
                     Temprerature
                   </h3>
                 </div>
-                <div className="h-32 p-2">
-                  <ContentPlaceholder />
+                <div className="p-4">
+                  <div className="flex justify-center m-auto">
+                    <Card>
+                      <p className="text-tremor-default font-bold text-tremor-content dark:text-dark-tremor-content text-center pb-4">
+                        <span>23°C</span>
+                      </p>
+                      <CategoryBar
+                        values={[5, 5, 5, 5, 5, 5, 5, 5, 10]}
+                        colors={[
+                          'rose',
+                          'orange',
+                          'yellow',
+                          'emerald',
+                          'emerald',
+                          'emerald',
+                          'yellow',
+                          'orange',
+                          'rose',
+                        ]}
+                        markerValue={23}
+                      />
+                    </Card>
+                  </div>
                 </div>
               </div>
               <div className="py-2">
@@ -76,8 +148,19 @@ const Home = () => {
                     Humidity
                   </h3>
                 </div>
-                <div className="h-32 p-2">
-                  <ContentPlaceholder />
+                <div className="p-4">
+                  <div className="flex justify-center m-auto">
+                    <Card>
+                      <p className="text-tremor-default font-bold text-tremor-content dark:text-dark-tremor-content text-center pb-4">
+                        <span>78%</span>
+                      </p>
+                      <CategoryBar
+                        values={[25, 20, 20, 35]}
+                        colors={['rose', 'orange', 'yellow', 'emerald']}
+                        markerValue={78}
+                      />
+                    </Card>
+                  </div>
                 </div>
               </div>
               <div className="py-2">
@@ -86,13 +169,66 @@ const Home = () => {
                     Light Intensity
                   </h3>
                 </div>
-                <div className="h-32 p-2">
-                  <ContentPlaceholder />
+                <div className="p-4">
+                  <Card>
+                    <p className="text-tremor-default font-bold text-tremor-content dark:text-dark-tremor-content text-center pb-4">
+                      <span>45%</span>
+                    </p>
+                    <ProgressBar value={45} color="emerald" className="mt-3" />
+                  </Card>
                 </div>
               </div>
             </div>
             <div className="p-2 md:col-span-8 md:h-auto">
-              <ContentPlaceholder />
+              <h3 className="text-tremor-default font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong">
+                Alerts
+              </h3>
+              <AccordionList className="mx-auto mt-4">
+                <Accordion>
+                  <AccordionHeader className="text-sm font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong [&>.tremor-AccordionHeader-children]:items-center">
+                    <Icon icon={RiErrorWarningFill} color="red" size="lg" />
+                    <p className="text-tremor-default text-tremor-content dark:text-dark-tremor-content">
+                      Add water
+                    </p>
+                  </AccordionHeader>
+                  <AccordionBody className="leading-6">
+                    Please, add water to the tank to maintain the water level.
+                  </AccordionBody>
+                </Accordion>
+                <Accordion>
+                  <AccordionHeader className="text-sm font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong [&>.tremor-AccordionHeader-children]:items-center">
+                    <Icon icon={RiErrorWarningFill} color="yellow" size="lg" />
+                    <p className="text-tremor-default text-tremor-content dark:text-dark-tremor-content">
+                      Clean the tank
+                    </p>
+                  </AccordionHeader>
+                  <AccordionBody className="leading-6">
+                    Please, clean the tank to maintain the water quality.
+                  </AccordionBody>
+                </Accordion>
+                <Accordion>
+                  <AccordionHeader className="text-sm font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong [&>.tremor-AccordionHeader-children]:items-center">
+                    <Icon icon={RiErrorWarningFill} color="red" size="lg" />
+                    <p className="text-tremor-default text-tremor-content dark:text-dark-tremor-content">
+                      Fill PH solution
+                    </p>
+                  </AccordionHeader>
+                  <AccordionBody className="leading-6">
+                    Please, fill the PH solution to maintain the PH level.
+                  </AccordionBody>
+                </Accordion>
+                <Accordion>
+                  <AccordionHeader className="text-sm font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong [&>.tremor-AccordionHeader-children]:items-center">
+                    <Icon icon={RiCheckboxCircleFill} color="green" size="lg" />
+                    <p className="text-tremor-default text-tremor-content dark:text-dark-tremor-content">
+                      You can harvest!
+                    </p>
+                  </AccordionHeader>
+                  <AccordionBody className="leading-6">
+                    Your plants are ready to harvest. Please, check the plants.
+                  </AccordionBody>
+                </Accordion>
+              </AccordionList>
             </div>
           </div>
         </Card>
@@ -103,9 +239,16 @@ const Home = () => {
                 PH Level
               </h3>
             </div>
-            <div className="h-60 p-2">
-              <ContentPlaceholder />
-            </div>
+            <LineChart
+              className="h-60 px-2"
+              data={PHdata.values}
+              index="time"
+              categories={['PH', 'min', 'max']}
+              colors={['emerald', 'red', 'red']}
+              xAxisLabel={PHdata.interval}
+              minValue={1}
+              maxValue={14}
+            />
           </Card>
           <Card className="rounded-tremor-small p-0">
             <div className="border-b border-tremor-border px-4 py-2 dark:border-dark-tremor-border">
@@ -113,29 +256,16 @@ const Home = () => {
                 EC Level
               </h3>
             </div>
-            <div className="h-60 p-2">
-              <ContentPlaceholder />
-            </div>
-          </Card>
-          <Card className="rounded-tremor-small p-0">
-            <div className="border-b border-tremor-border px-4 py-2 dark:border-dark-tremor-border">
-              <h3 className="text-tremor-default font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong">
-                Nutrient Level
-              </h3>
-            </div>
-            <div className="h-60 p-2">
-              <ContentPlaceholder />
-            </div>
-          </Card>
-          <Card className="rounded-tremor-small p-0">
-            <div className="border-b border-tremor-border px-4 py-2 dark:border-dark-tremor-border">
-              <h3 className="text-tremor-default font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong">
-                Water Level
-              </h3>
-            </div>
-            <div className="h-60 p-2">
-              <ContentPlaceholder />
-            </div>
+            <LineChart
+              className="h-60 px-2"
+              data={ECdata.values}
+              index="time"
+              categories={['EC', 'min', 'max']}
+              colors={['emerald', 'red', 'red']}
+              xAxisLabel={ECdata.interval}
+              minValue={0}
+              maxValue={10}
+            />
           </Card>
         </div>
       </div>
