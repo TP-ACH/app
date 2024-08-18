@@ -69,7 +69,7 @@ const SideNav = () => {
             <ListItem key={item.label} className="justify-start py-5">
               <Icon icon={item.icon} tooltip={item.label} size="md" />
               <Link to={item.link}>
-                <span className={location.pathname === item.link ? 'font-extrabold' : ''}>
+                <span className={location.pathname === item.link ? 'font-extrabold underline' : ''}>
                   {item.label}
                 </span>
               </Link>
