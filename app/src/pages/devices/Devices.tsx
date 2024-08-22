@@ -17,6 +17,8 @@ import PHDevice from './PH/PHDevice'
 import ECDevice from './EC/ECDevice'
 import TemperatureDevice from './Temperature/TemperatureDevice'
 import HumidityDevice from './Humidity/HumidityDevice'
+import LightDevice from './Light/LightDevice'
+import WaterDevice from './Water/WaterDevice'
 
 const Devices = () => {
   return (
@@ -77,12 +79,8 @@ const Devices = () => {
                 <HumidityDevice />
               </TabPanel>
               <TabPanel className="mt-4">
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <Card className="h-36 rounded-tremor-small p-2">Estado actual luz</Card>
-                  <Card className="h-36 rounded-tremor-small p-2">prendido apagado luz</Card>
-                  <Card className="h-36 rounded-tremor-small p-2">Esado actual agua</Card>
-                  <Card className="h-36 rounded-tremor-small p-2">cuando se cargo el tanke</Card>
-                </div>
+                <WaterDevice />
+                <LightDevice />
               </TabPanel>
             </TabPanels>
           </TabGroup>
