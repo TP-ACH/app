@@ -16,6 +16,7 @@ import './Devices.scss'
 import PHDevice from './PH/PHDevice'
 import ECDevice from './EC/ECDevice'
 import TemperatureDevice from './Temperature/TemperatureDevice'
+import HumidityDevice from './Humidity/HumidityDevice'
 
 const Devices = () => {
   return (
@@ -73,12 +74,7 @@ const Devices = () => {
                 <TemperatureDevice />
               </TabPanel>
               <TabPanel className="mt-4">
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <Card className="h-36 rounded-tremor-small p-2">nivel hum.</Card>
-                  <Card className="h-36 rounded-tremor-small p-2">ultimo dato</Card>
-                  <Card className="h-36 rounded-tremor-small p-2">rango</Card>
-                  <Card className="h-36 rounded-tremor-small p-2">max/min/avg</Card>
-                </div>
+                <HumidityDevice />
               </TabPanel>
               <TabPanel className="mt-4">
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
