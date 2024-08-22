@@ -64,32 +64,32 @@ const PHDevice = () => {
         </Card>
         <div className="h-36 p-0 gap-4 grid grid-cols-1 sm:grid-cols-3">
           <Card>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-center">
               <h4 className="text-tremor-default text-tremor-content dark:text-dark-tremor-content">
                 Max
               </h4>
             </div>
-            <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong font-semibold">
+            <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong font-semibold text-center">
               {DeviceData.max} {DeviceData.unit}
             </p>
           </Card>
           <Card>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-center">
               <h4 className="text-tremor-default text-tremor-content dark:text-dark-tremor-content">
                 Min
               </h4>
             </div>
-            <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong font-semibold">
+            <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong font-semibold text-center">
               {DeviceData.min} {DeviceData.unit}
             </p>
           </Card>
           <Card>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-center">
               <h4 className="text-tremor-default text-tremor-content dark:text-dark-tremor-content">
                 Avg
               </h4>
             </div>
-            <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong font-semibold">
+            <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong font-semibold text-center">
               {DeviceData.avg} {DeviceData.unit}
             </p>
           </Card>
