@@ -16,7 +16,7 @@ const DeviceData = {
 DeviceData.values = dataLight.data.map((item) => {
   return {
     color: item.value ? 'emerald' : 'gray',
-    tooltip: item.time + (item.value ? ' Full' : ' Empty'),
+    tooltip: item.time + (item.value ? ' ON' : ' OFF'),
   }
 })
 
