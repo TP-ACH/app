@@ -1,0 +1,132 @@
+{
+  "title": "Water",
+  "unit": "",
+  "interval": "30 minutes",
+  "current": 1,
+  "data": [
+    {
+      "time": "0'",
+      "value": 1
+    },
+    {
+      "time": "1'",
+      "value": 1
+    },
+    {
+      "time": "2'",
+      "value": 1
+    },
+    {
+      "time": "3'",
+      "value": 1
+    },
+    {
+      "time": "4'",
+      "value": 1
+    },
+    {
+      "time": "5'",
+      "value": 1
+    },
+    {
+      "time": "6'",
+      "value": 1
+    },
+    {
+      "time": "7'",
+      "value": 1
+    },
+    {
+      "time": "8'",
+      "value": 1
+    },
+    {
+      "time": "9'",
+      "value": 1
+    },
+    {
+      "time": "10'",
+      "value": 1
+    },
+    {
+      "time": "11'",
+      "value": 1
+    },
+    {
+      "time": "12'",
+      "value": 1
+    },
+    {
+      "time": "13'",
+      "value": 1
+    },
+    {
+      "time": "14'",
+      "value": 1
+    },
+    {
+      "time": "15'",
+      "value": 1
+    },
+    {
+      "time": "16'",
+      "value": 1
+    },
+    {
+      "time": "17'",
+      "value": 1
+    },
+    {
+      "time": "18'",
+      "value": 0
+    },
+    {
+      "time": "19'",
+      "value": 1
+    },
+    {
+      "time": "20'",
+      "value": 1
+    },
+    {
+      "time": "21'",
+      "value": 1
+    },
+    {
+      "time": "22'",
+      "value": 1
+    },
+    {
+      "time": "23'",
+      "value": 1
+    },
+    {
+      "time": "24'",
+      "value": 1
+    },
+    {
+      "time": "25'",
+      "value": 1
+    },
+    {
+      "time": "26'",
+      "value": 1
+    },
+    {
+      "time": "27'",
+      "value": 1
+    },
+    {
+      "time": "28'",
+      "value": 0
+    },
+    {
+      "time": "29'",
+      "value": 1
+    },
+    {
+      "time": "30'",
+      "value": 1
+    }
+  ]
+}

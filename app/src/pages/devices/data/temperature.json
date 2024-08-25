@@ -1,0 +1,139 @@
+{
+  "title": "Temperature",
+  "unit": "°C",
+  "interval": "30 minutes",
+  "threshold": {
+    "min": 20,
+    "max": 35
+  },
+  "min": 17,
+  "max": 28,
+  "avg": 25,
+  "current": 29,
+  "data": [
+    {
+      "time": "0'",
+      "value": 20
+    },
+    {
+      "time": "1'",
+      "value": 25
+    },
+    {
+      "time": "2'",
+      "value": 22
+    },
+    {
+      "time": "3'",
+      "value": 23
+    },
+    {
+      "time": "4'",
+      "value": 24
+    },
+    {
+      "time": "5'",
+      "value": 25
+    },
+    {
+      "time": "6'",
+      "value": 26
+    },
+    {
+      "time": "7'",
+      "value": 27
+    },
+    {
+      "time": "8'",
+      "value": 28
+    },
+    {
+      "time": "9'",
+      "value": 29
+    },
+    {
+      "time": "10'",
+      "value": 28
+    },
+    {
+      "time": "11'",
+      "value": 27
+    },
+    {
+      "time": "12'",
+      "value": 26
+    },
+    {
+      "time": "13'",
+      "value": 25
+    },
+    {
+      "time": "14'",
+      "value": 24
+    },
+    {
+      "time": "15'",
+      "value": 23
+    },
+    {
+      "time": "16'",
+      "value": 22
+    },
+    {
+      "time": "17'",
+      "value": 21
+    },
+    {
+      "time": "18'",
+      "value": 20
+    },
+    {
+      "time": "19'",
+      "value": 21
+    },
+    {
+      "time": "20'",
+      "value": 22
+    },
+    {
+      "time": "21'",
+      "value": 23
+    },
+    {
+      "time": "22'",
+      "value": 24
+    },
+    {
+      "time": "23'",
+      "value": 25
+    },
+    {
+      "time": "24'",
+      "value": 26
+    },
+    {
+      "time": "25'",
+      "value": 27
+    },
+    {
+      "time": "26'",
+      "value": 28
+    },
+    {
+      "time": "27'",
+      "value": 29
+    },
+    {
+      "time": "28'",
+      "value": 28
+    },
+    {
+      "time": "29'",
+      "value": 27
+    },
+    {
+      "time": "30'",
+      "value": 29
+    }
+  ]
+}
