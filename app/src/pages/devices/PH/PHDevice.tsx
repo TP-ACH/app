@@ -1,5 +1,6 @@
 import React from 'react'
-import { Card, LineChart, CategoryBar } from '@tremor/react'
+import { Card, LineChart, CategoryBar, Divider } from '@tremor/react'
+import { Rule } from '../../../components'
 
 import './PHDevice.scss'
 
@@ -94,6 +95,29 @@ const PHDevice = () => {
             </p>
           </Card>
         </div>
+      </div>
+      <Divider className="my-10">Settings</Divider>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Rule
+          ruleId="ph-1"
+          title="Upper PH threshold"
+          recomended={10}
+          description="Lorem ipsum dolor sit amet, consetetur sadipscing elitr."
+          ruleValue={9}
+          maxValue={14}
+          minValue={1}
+          isEnabled={true}
+        />
+        <Rule
+          ruleId="ph-2"
+          title="Lowe PH threshold"
+          recomended={3}
+          description="Lorem ipsum dolor sit amet, consetetur sadipscing elitr."
+          ruleValue={5}
+          maxValue={14}
+          minValue={1}
+          isEnabled={false}
+        />
       </div>
     </div>
   )
