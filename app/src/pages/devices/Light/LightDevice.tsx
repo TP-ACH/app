@@ -26,13 +26,13 @@ const LightDevice = () => {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Card>
           {DeviceData.current ? (
-            <p className="text-tremor-default font-bold text-tremor-content dark:text-dark-tremor-content text-center py-4">
-              <p className="text-center font-mono text-sm text-slate-500">Light is ON</p>
+            <p className="text-tremor-default font-bold text-tremor-content dark:text-dark-tremor-content text-center py-4 flex flex-col justify-center	justify-items-center">
+              <span className="text-center font-mono text-sm text-slate-500">Light is ON</span>
               <Icon size="xl" icon={RiLightbulbFill} />
             </p>
           ) : (
-            <p className="text-tremor-default font-bold text-tremor-content dark:text-dark-tremor-content text-center py-4">
-              <p className="text-center font-mono text-sm text-slate-500">Light is OFF</p>
+            <p className="text-tremor-default font-bold text-tremor-content dark:text-dark-tremor-content text-center py-4 flex flex-col justify-center	justify-items-center">
+              <span className="text-center font-mono text-sm text-slate-500">Light is OFF</span>
               <Icon size="xl" icon={RiLightbulbFill} color="gray" />
             </p>
           )}
