@@ -82,7 +82,7 @@ const Home = () => {
             <h3 className="text-tremor-title font-semibold text-tremor-content-strong dark:text-dark-tremor-content-strong">
               Dashboard
             </h3>
-            <div className="mt-4 sm:mt-0 sm:flex sm:items-center sm:space-x-2  w-1/4">
+            <div className="mt-4 sm:mt-0 sm:flex sm:items-center sm:space-x-2 w-1/4">
               <Select
                 className="w-full sm:w-fit [&>button]:rounded-tremor-small min-w-full"
                 enableClear={false}
