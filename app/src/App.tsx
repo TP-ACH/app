@@ -1,6 +1,6 @@
 import React from 'react'
 import { Routes, Route } from 'react-router-dom'
-import { Home, Login, Register, Devices } from './pages'
+import { Home, Login, Register, Devices, Settings } from './pages'
 import './App.scss'
 
 function App() {
@@ -11,6 +11,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/devices" element={<Devices />} />
+        <Route path="/settings" element={<Settings />} />
       </Routes>
     </div>
   )
