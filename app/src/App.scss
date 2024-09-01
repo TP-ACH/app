@@ -8,6 +8,9 @@
 
     &.hide-nav {
       padding-left: 0;
+      #side-nav {
+        width: 0;
+      }
     }
   }
 }
