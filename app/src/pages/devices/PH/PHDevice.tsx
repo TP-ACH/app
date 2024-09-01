@@ -106,6 +106,7 @@ const PHDevice = () => {
           ruleValue={9}
           maxValue={14}
           minValue={1}
+          type="Automatic"
           isEnabled={true}
         />
         <Rule
@@ -116,6 +117,7 @@ const PHDevice = () => {
           ruleValue={5}
           maxValue={14}
           minValue={1}
+          type="Manual"
           isEnabled={false}
         />
       </div>
