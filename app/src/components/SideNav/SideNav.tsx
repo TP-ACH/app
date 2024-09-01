@@ -60,7 +60,7 @@ const SideNav = () => {
       <Card
         className={
           hideNav
-            ? 'opacity-0 duration-200	ease-linear rounded-none h-screen'
+            ? 'opacity-0 duration-200	ease-linear rounded-none h-screen hidden'
             : 'opacity-100 duration-200	ease-linear rounded-none h-screen'
         }
       >

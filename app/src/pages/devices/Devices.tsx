@@ -30,9 +30,9 @@ const Devices = () => {
             <h3 className="text-tremor-title font-semibold text-tremor-content-strong dark:text-dark-tremor-content-strong">
               Devices
             </h3>
-            <div className="mt-4 sm:mt-0 sm:flex sm:items-center sm:space-x-2">
+            <div className="mt-4 sm:mt-0 sm:flex sm:items-center sm:space-x-2 w-1/4">
               <Select
-                className="w-full sm:w-fit [&>button]:rounded-tremor-small"
+                className="w-full sm:w-fit [&>button]:rounded-tremor-small min-w-full"
                 enableClear={false}
                 defaultValue="1"
               >
@@ -42,15 +42,6 @@ const Devices = () => {
                 <SelectItem value="4">Last 24 hours</SelectItem>
                 <SelectItem value="5">Last 7 days</SelectItem>
                 <SelectItem value="6">Last 30 days</SelectItem>
-              </Select>
-              <Select
-                className="mt-2 w-full sm:mt-0 sm:w-fit [&>button]:rounded-tremor-small"
-                enableClear={false}
-                defaultValue="1"
-              >
-                <SelectItem value="1">Kit 1</SelectItem>
-                <SelectItem value="2">Kit 2</SelectItem>
-                <SelectItem value="3">Kit 3</SelectItem>
               </Select>
             </div>
           </div>
