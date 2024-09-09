@@ -1,0 +1,19 @@
+#crop {
+  #crop-content {
+    text-align: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-position-y: 50px;
+  }
+  img {
+    width: 100%;
+    margin: auto;
+  }
+  .hide-grid {
+    color: transparent;
+    a:hover {
+      color: red;
+    }
+  }
+}

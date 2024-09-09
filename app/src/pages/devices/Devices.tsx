@@ -21,6 +21,36 @@ import LightDevice from './Light/LightDevice'
 import WaterDevice from './Water/WaterDevice'
 
 const Devices = () => {
+  // Detect the current tab
+  const location = window.location
+  let currentTab = 0
+  switch (location.hash) {
+    case '':
+      currentTab = 0
+      break
+    case '#ph':
+      currentTab = 0
+      break
+    case '#ec':
+      currentTab = 1
+      break
+    case '#temperature':
+      currentTab = 2
+      break
+    case '#humidity':
+      currentTab = 3
+      break
+    case '#light':
+      currentTab = 4
+      break
+    case '#water':
+      currentTab = 4
+      break
+    default:
+      currentTab = 0
+      break
+  }
+
   return (
     <div id="devices" className="h-[75px]">
       <SideNav />
@@ -48,7 +78,7 @@ const Devices = () => {
         </header>
         <Divider />
         <Card className="mt-6">
-          <TabGroup>
+          <TabGroup defaultIndex={currentTab}>
             <TabList>
               <Tab>PH</Tab>
               <Tab>EC</Tab>
