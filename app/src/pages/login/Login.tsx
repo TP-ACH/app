@@ -67,7 +67,7 @@ const Login = () => {
       <Title className="my-20">LOGO</Title>
       <Card>
         <div className="mx-auto border-2 border-gray-400 rounded-lg">
-          <form className="mx-auto max-w-sm space-y-8 my-10" onSubmit={handleSubmit}>
+          <form className="mx-auto max-w-md space-y-8 my-10" onSubmit={handleSubmit}>
             <Title className="my-5 text-center">
               <Bold className="text-black">Welcome back</Bold>
             </Title>
@@ -108,7 +108,7 @@ const Login = () => {
             </div>
             <div>
               <p>
-                Don't have an account?
+                Don't have an account? &nbsp;
                 <Link to="/register">
                   <u>Register</u>
                 </Link>

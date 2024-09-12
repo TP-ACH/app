@@ -11,6 +11,10 @@ const Client = {
     return await apiFacade.post<T>(url, data, config)
   },
 
+  put: async <T>(url: string, data: unknown, config?: AxiosRequestConfig) => {
+    return await apiFacade.put<T>(url, data, config)
+  },
+
   login: async <T>(data: LoginRequest) => {
     return (await apiFacade.post<T>('auth/login', data)) as unknown as Promise<
       LoginResponse | ErrorMessage
