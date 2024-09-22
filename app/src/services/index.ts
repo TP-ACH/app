@@ -1,2 +1,8 @@
 export { default as Client } from './Client'
-export type { LoginRequest, LoginResponse, ErrorMessage } from './DataTypes'
+export type {
+  LoginRequest,
+  LoginResponse,
+  ErrorMessage,
+  RegisterRequest,
+  RegisterResponse,
+} from './DataTypes'

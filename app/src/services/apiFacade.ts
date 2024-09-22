@@ -5,7 +5,7 @@ const instance = axios.create({
   timeout: 1000,
   headers: {
     'Accept': 'application/json',
-    'Content-Type': 'application/x-www-form-urlencoded',
+    'Content-Type': 'application/json',
   },
 })
 
@@ -30,6 +30,13 @@ instance.interceptors.response.use(
     // Any status code that lie within the range of 2xx cause this function to trigger
     // Do something with response data
     //console.warn('Interceptor on response', response)
+
+    // if there is no data, return an ok response
+    if (!response.data) {
+      return {
+        ok: true,
+      }
+    }
 
     return response.data
   },

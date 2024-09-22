@@ -11,3 +11,17 @@ export interface LoginResponse {
 export interface ErrorMessage {
   error: string
 }
+
+export interface RegisterRequest {
+  user: {
+    username: string
+    first_name: string
+    last_name: string
+    password: string
+  }
+  device_id: string
+}
+
+export interface RegisterResponse {
+  message: string
+}

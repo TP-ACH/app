@@ -1,6 +1,12 @@
 import { AxiosRequestConfig } from 'axios'
 import apiFacade from './apiFacade'
-import { LoginRequest, LoginResponse, ErrorMessage } from './DataTypes'
+import {
+  LoginRequest,
+  LoginResponse,
+  ErrorMessage,
+  RegisterRequest,
+  RegisterResponse,
+} from './DataTypes'
 
 const Client = {
   get: async <T>(url: string, config?: AxiosRequestConfig) => {
@@ -16,8 +22,20 @@ const Client = {
   },
 
   login: async <T>(data: LoginRequest) => {
-    return (await apiFacade.post<T>('auth/login', data)) as unknown as Promise<
+    const loginHeaders = {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    }
+
+    return (await apiFacade.post<T>('auth/login', data, loginHeaders)) as unknown as Promise<
       LoginResponse | ErrorMessage
+    >
+  },
+
+  register: async <T>(data: RegisterRequest) => {
+    return (await apiFacade.post<T>('auth/register', data)) as unknown as Promise<
+      RegisterResponse | ErrorMessage
     >
   },
 }
