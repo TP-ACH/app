@@ -8,7 +8,7 @@ import {
   RiLockPasswordLine,
 } from '@remixicon/react'
 import { Link } from 'react-router-dom'
-//import { Client, RegisterRequest, RegisterResponse,ErrorMessage } from '../../services'
+import { Client, RegisterRequest, RegisterResponse, ErrorMessage } from '../../services'
 import './Register.scss'
 
 const Register = () => {
@@ -59,28 +59,28 @@ const Register = () => {
 
     // Call register function
     try {
-      /*const data: RegisterRequest = {
-        username: state.email,
-        password: state.password,
-        first_name: state.firstName,
-        last_name: state.lastName,
+      const data: RegisterRequest = {
+        user: {
+          username: state.email,
+          first_name: state.firstName,
+          last_name: state.lastName,
+          password: state.password,
+        },
         device_id: state.deviceId,
       }
 
-      const res: RegisterResponse | ErrorMessage = await Client.login(data)*/
+      console.log(data)
 
-      const res = {
-        ok: true,
-      }
+      const res: RegisterResponse | ErrorMessage = await Client.register(data)
       console.log(res)
       if ('ok' in res) {
         setResponse('Successfully registered!')
         setTimeout(() => {
           window.location.href = '/login'
         }, 2000)
-      } /*else if ('error' in res) {
+      } else if ('error' in res) {
         setPageError(res.error)
-      }*/ else {
+      } else {
         setPageError('Server error, please try again later')
       }
     } catch (error) {
