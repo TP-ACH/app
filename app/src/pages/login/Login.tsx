@@ -8,7 +8,7 @@ import {
   RiLockPasswordLine,
 } from '@remixicon/react'
 import { Link } from 'react-router-dom'
-
+import { Client, LoginRequest, LoginResponse, ErrorMessage } from '../../services'
 import './Login.scss'
 
 const Login = () => {
@@ -36,26 +36,30 @@ const Login = () => {
       return
     }
 
-    setResponse('Logged in successfully')
-
     // Call login function
-    /*const loginData: LoginProps = {
-      email: state.email,
-      password: state.password,
-    }
     try {
-      const res = await login(loginData)
-      if (res.error) {
+      const data: LoginRequest = {
+        username: state.email,
+        password: state.password,
+      }
+
+      const res: LoginResponse | ErrorMessage = await Client.login(data)
+      console.log(res)
+      if ('access_token' in res) {
+        setResponse('Welcome back!')
+        // save token to local storage
+        localStorage.setItem('token', res.access_token)
+        setTimeout(() => {
+          window.location.href = '/'
+        }, 2000)
+      } else if ('error' in res) {
         setPageError(res.error)
       } else {
-        await setResponse('Hello' + res.user.name)
-        setTimeout(() => {
-          //router.push('/home')
-        }, 2000)
+        setPageError('Server error, please try again later')
       }
     } catch (error) {
       setPageError('Server error, please try again later')
-    }*/
+    }
   }
 
   return (
@@ -63,7 +67,7 @@ const Login = () => {
       <Title className="my-20">LOGO</Title>
       <Card>
         <div className="mx-auto border-2 border-gray-400 rounded-lg">
-          <form className="mx-auto max-w-sm space-y-8 my-10" onSubmit={handleSubmit}>
+          <form className="mx-auto max-w-md space-y-8 my-10" onSubmit={handleSubmit}>
             <Title className="my-5 text-center">
               <Bold className="text-black">Welcome back</Bold>
             </Title>
@@ -104,7 +108,7 @@ const Login = () => {
             </div>
             <div>
               <p>
-                Don't have an account?
+                Don't have an account? &nbsp;
                 <Link to="/register">
                   <u>Register</u>
                 </Link>

@@ -1,0 +1,10 @@
+#register {
+  max-width: 800px;
+  margin: auto;
+  .tremor-Card-root {
+    > div {
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+  }
+}

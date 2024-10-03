@@ -1,6 +1,6 @@
 import React from 'react'
 import { useState } from 'react'
-import { Card, List, ListItem, Icon, Title } from '@tremor/react'
+import { Card, List, ListItem, Icon, Title, Button } from '@tremor/react'
 import { Link, useLocation } from 'react-router-dom'
 import {
   RiMenuFoldLine,
@@ -45,6 +45,11 @@ const SideNav = () => {
     document.getElementById('app')?.classList.toggle('hide-nav')
   }
 
+  function handleLogout() {
+    localStorage.removeItem('token')
+    window.location.href = '/login'
+  }
+
   return (
     <div id="side-nav">
       <div className="menu absolute top-0 left-0 w-screen	h-[75px] bg-white border z-20 flex content-start gap-x-[5vw]">
@@ -76,10 +81,11 @@ const SideNav = () => {
             </ListItem>
           ))}
           <ListItem className="justify-center py-5 absolute bottom-0 left-0">
-            <Icon icon={RiLogoutBoxLine} tooltip="Logout" size="md" />
-            <Link to="/logout">
-              <span className="font-bold">Logout</span>
-            </Link>
+            <div className="flex justify-center">
+              <Button variant="secondary" icon={RiLogoutBoxLine} onClick={handleLogout}>
+                Logout
+              </Button>
+            </div>
           </ListItem>
         </List>
       </Card>

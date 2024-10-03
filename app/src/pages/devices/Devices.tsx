@@ -1,4 +1,5 @@
 import React from 'react'
+import { useState, useEffect } from 'react'
 import { SideNav } from '../../components'
 import {
   Divider,
@@ -21,6 +22,23 @@ import LightDevice from './Light/LightDevice'
 import WaterDevice from './Water/WaterDevice'
 
 const Devices = () => {
+  const [interval, setInterval] = useState('7-d')
+
+  useEffect(() => {
+    if (interval === '') {
+      // Set only if no interval is set
+      setInterval('7-d')
+    }
+  }, [interval])
+
+  //handle interval change
+  const handleOnChangeInterval = (value: string) => {
+    console.log('Selected interval:', value)
+    setInterval(value)
+  }
+
+  console.log('Current interval state:', interval)
+
   // Detect the current tab
   const location = window.location
   let currentTab = 0
@@ -64,14 +82,15 @@ const Devices = () => {
               <Select
                 className="w-full sm:w-fit [&>button]:rounded-tremor-small min-w-full"
                 enableClear={false}
-                defaultValue="1"
+                value={interval}
+                onValueChange={handleOnChangeInterval}
               >
-                <SelectItem value="1">Last 30 minutes</SelectItem>
-                <SelectItem value="2">Last 60 minutes</SelectItem>
-                <SelectItem value="3">Last 12 hours</SelectItem>
-                <SelectItem value="4">Last 24 hours</SelectItem>
-                <SelectItem value="5">Last 7 days</SelectItem>
-                <SelectItem value="6">Last 30 days</SelectItem>
+                <SelectItem value="30-m">Last 30 minutes</SelectItem>
+                <SelectItem value="60-m">Last 60 minutes</SelectItem>
+                <SelectItem value="12-h">Last 12 hours</SelectItem>
+                <SelectItem value="24-h">Last 24 hours</SelectItem>
+                <SelectItem value="7-d">Last 7 days</SelectItem>
+                <SelectItem value="30-d">Last 30 days</SelectItem>
               </Select>
             </div>
           </div>
@@ -88,7 +107,7 @@ const Devices = () => {
             </TabList>
             <TabPanels>
               <TabPanel className="mt-4">
-                <PHDevice />
+                <PHDevice interval={interval} />
               </TabPanel>
               <TabPanel className="mt-4">
                 <ECDevice />
