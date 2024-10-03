@@ -5,4 +5,6 @@ export type {
   ErrorMessage,
   RegisterRequest,
   RegisterResponse,
+  SensorRquest,
+  SensorResponse,
 } from './DataTypes'

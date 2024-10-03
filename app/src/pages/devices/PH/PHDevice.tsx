@@ -1,12 +1,14 @@
 import React from 'react'
+// import { useState, useEffect } from 'react'
 import { Card, LineChart, CategoryBar, Divider } from '@tremor/react'
 import { Rule } from '../../../components'
+// import { Client, SensorRquest, SensorResponse, ErrorMessage } from '../../../services'
 
 import './PHDevice.scss'
 
 // PH data
 import dataPH from '../data/ph.json'
-const DeviceData = {
+const deviceData = {
   values: [] as { time: string; min: number; max: number; PH: number }[],
   min: dataPH.min,
   max: dataPH.max,
@@ -17,16 +19,131 @@ const DeviceData = {
   unit: dataPH.unit,
 }
 
-DeviceData.values = dataPH.data.map((item) => {
+deviceData.values = dataPH.data.map((item) => {
   return {
     time: item.time,
-    min: DeviceData.threshold.min,
-    max: DeviceData.threshold.max,
+    min: deviceData.threshold.min,
+    max: deviceData.threshold.max,
     PH: item.value,
   }
 })
 
-const PHDevice = () => {
+// PH data using API
+/*const DeviceData = {
+  values: [] as { time: string; min: number; max: number; PH: number }[],
+  min: 0,
+  max: 0,
+  avg: 0,
+  threshold: { min: 0, max: 0 },
+  interval: '',
+  current: 0,
+  unit: '',
+  title: 'PH',
+}
+
+const getIntervalDates = (interval: string) => {
+  const endDate = new Date()
+  const startDate = new Date()
+
+  // interval value format is number-time e.g. 1-m, 1-h, 1-d, 1-w, 1-m, 3-m, 6-m, 1-y
+  const [value, time] = interval.split('-')
+  switch (time) {
+    case 'm':
+      startDate.setMinutes(startDate.getMinutes() - parseInt(value))
+      break
+    case 'h':
+      startDate.setHours(startDate.getHours() - parseInt(value))
+      break
+    case 'd':
+      startDate.setDate(startDate.getDate() - parseInt(value))
+      break
+    case 'w':
+      startDate.setDate(startDate.getDate() - parseInt(value) * 7)
+      break
+    case 'M':
+      startDate.setMonth(startDate.getMonth() - parseInt(value))
+      break
+    case 'y':
+      startDate.setFullYear(startDate.getFullYear() - parseInt(value))
+      break
+    default:
+      startDate.setHours(startDate.getHours() - 1)
+      break
+  }
+
+  // return the dates in the format yyyy-mm-dd-hh mm:ss
+  return {
+    startDate: startDate.toISOString().split('.')[0],
+    endDate: endDate.toISOString().split('.')[0],
+  }
+}
+
+const getPHData = async (interval: string) => {
+  console.log('Getting PH data')
+
+  const { startDate, endDate } = getIntervalDates(interval)
+  console.log('Start date:', startDate)
+  console.log('End date:', endDate)
+
+  const data: SensorRquest = {
+    device_id: 'fx393',
+    sensor: 'ph',
+    start_date: startDate,
+    end_date: endDate,
+  }
+
+  const response = await Client.sensor<SensorResponse | ErrorMessage>(data)
+  console.log(response)
+
+  if ('error' in response) {
+    console.error(response.error)
+    return
+  }
+
+  DeviceData.min = response.ph?.min || 0
+  DeviceData.max = response.ph?.max || 0
+  DeviceData.avg = response.ph?.average || 0
+  DeviceData.threshold = { min: 5, max: 8 }
+  DeviceData.interval = interval
+  DeviceData.current = response.ph?.data[response.ph.data.length - 1].reading || 0
+
+  DeviceData.values =
+    response.ph?.data.map((item) => {
+      return {
+        time: item.created_at,
+        min: DeviceData.threshold.min,
+        max: DeviceData.threshold.max,
+        PH: item.reading,
+      }
+    }) || []
+
+  console.log(DeviceData)
+  return DeviceData
+}*/
+
+interface PHDeviceProps {
+  interval: string
+}
+
+const PHDevice: React.FC<PHDeviceProps> = ({ interval }) => {
+  console.log(interval)
+  /*const [deviceData, setDeviceData] = useState(DeviceData)
+  const [intervalValue] = useState(interval)
+  console.log(intervalValue)
+
+  // nake sure it's called only once
+  useEffect(() => {
+    if (deviceData.values.length === 0) {
+      const fetchData = async () => {
+        const data = await getPHData(intervalValue)
+        if (data) {
+          setDeviceData(data)
+        }
+      }
+      fetchData()
+    }
+  }, [deviceData, intervalValue])*/
+
   return (
     <div id="ph">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -38,11 +155,11 @@ const PHDevice = () => {
           </div>
           <LineChart
             className="h-60 px-2"
-            data={DeviceData.values}
+            data={deviceData.values}
             index="time"
             categories={['PH', 'min', 'max']}
             colors={['emerald', 'red', 'red']}
-            xAxisLabel={DeviceData.interval}
+            xAxisLabel={deviceData.interval}
             minValue={1}
             maxValue={14}
           />
@@ -50,17 +167,17 @@ const PHDevice = () => {
         <Card className="h-36 rounded-tremor-small p-2">
           <p className="text-tremor-default font-bold text-tremor-content dark:text-dark-tremor-content text-center py-4">
             <span>
-              Current PH {DeviceData.current} {DeviceData.unit}
+              Current PH {deviceData.current} {deviceData.unit}
             </span>
           </p>
           <CategoryBar
             values={[
-              DeviceData.threshold.min,
-              DeviceData.threshold.max - DeviceData.threshold.min,
-              14 - DeviceData.threshold.max,
+              deviceData.threshold.min,
+              deviceData.threshold.max - deviceData.threshold.min,
+              14 - deviceData.threshold.max,
             ]}
             colors={['rose', 'emerald', 'rose']}
-            markerValue={DeviceData.current}
+            markerValue={deviceData.current}
           />
         </Card>
         <div className="h-36 p-0 gap-4 grid grid-cols-1 sm:grid-cols-3">
@@ -71,7 +188,7 @@ const PHDevice = () => {
               </h4>
             </div>
             <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong font-semibold text-center">
-              {DeviceData.max} {DeviceData.unit}
+              {deviceData.max} {deviceData.unit}
             </p>
           </Card>
           <Card>
@@ -81,7 +198,7 @@ const PHDevice = () => {
               </h4>
             </div>
             <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong font-semibold text-center">
-              {DeviceData.min} {DeviceData.unit}
+              {deviceData.min} {deviceData.unit}
             </p>
           </Card>
           <Card>
@@ -91,7 +208,7 @@ const PHDevice = () => {
               </h4>
             </div>
             <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong font-semibold text-center">
-              {DeviceData.avg} {DeviceData.unit}
+              {deviceData.avg} {deviceData.unit}
             </p>
           </Card>
         </div>

@@ -43,9 +43,10 @@ instance.interceptors.response.use(
   function (error) {
     // Any status codes that falls outside the range of 2xx cause this function to trigger
     // Do something with response error
-    if (error.response.status === 401 && error.response.data.detail) {
-      return {
-        error: error.response.data.detail,
+    if (error.response.status === 401) {
+      localStorage.removeItem('token')
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login'
       }
     }
 
