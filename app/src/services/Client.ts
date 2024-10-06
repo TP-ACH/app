@@ -6,8 +6,11 @@ import {
   ErrorMessage,
   RegisterRequest,
   RegisterResponse,
+  User,
   SensorRquest,
   SensorResponse,
+  SensorRuleRequest,
+  SensorRuleResponse,
 } from './DataTypes'
 
 apiFacade.interceptors.request.use((config) => {
@@ -49,6 +52,10 @@ const Client = {
     >
   },
 
+  user: async <T>() => {
+    return (await apiFacade.get<T>('user/me')) as unknown as Promise<User | ErrorMessage>
+  },
+
   sensor: async <T>(data: SensorRquest) => {
     return (await apiFacade.get<T>(
       'sensors/' +
@@ -60,6 +67,18 @@ const Client = {
         '&end_date=' +
         data.end_date
     )) as unknown as Promise<SensorResponse | ErrorMessage>
+  },
+
+  rules: async <T>(data: SensorRuleRequest) => {
+    return (await apiFacade.get<T>(
+      'rules/sensor/' +
+        '?device_id=' +
+        data.device_id +
+        '&sensor=' +
+        data.sensor +
+        '&reading=' +
+        data.reading
+    )) as unknown as Promise<SensorRuleResponse | ErrorMessage>
   },
 }
 

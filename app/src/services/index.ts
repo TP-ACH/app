@@ -5,6 +5,9 @@ export type {
   ErrorMessage,
   RegisterRequest,
   RegisterResponse,
+  User,
   SensorRquest,
   SensorResponse,
+  SensorRuleRequest,
+  SensorRuleResponse,
 } from './DataTypes'

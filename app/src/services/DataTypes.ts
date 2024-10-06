@@ -26,6 +26,12 @@ export interface RegisterResponse {
   message: string
 }
 
+export interface User {
+  username: string
+  first_name: string
+  last_name: string
+}
+
 export interface SensorRquest {
   device_id: string
   sensor: string
@@ -45,4 +51,24 @@ export interface Sensor {
 export interface SensorResponse {
   ph: Sensor | null
   ec: Sensor | null
+}
+
+export interface SensorRuleRequest {
+  device_id: string
+  sensor: string
+  reading: number
+}
+export interface SensorRule {
+  bound: number
+  compare: string
+  time: number
+  enabled: number
+  action: {
+    type: string
+    dest: string
+  }
+}
+export interface SensorRuleResponse {
+  sensor: string
+  rules: SensorRule[]
 }

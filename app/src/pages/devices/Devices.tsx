@@ -1,5 +1,5 @@
 import React from 'react'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { SideNav } from '../../components'
 import {
   Divider,
@@ -22,14 +22,7 @@ import LightDevice from './Light/LightDevice'
 import WaterDevice from './Water/WaterDevice'
 
 const Devices = () => {
-  const [interval, setInterval] = useState('7-d')
-
-  useEffect(() => {
-    if (interval === '') {
-      // Set only if no interval is set
-      setInterval('7-d')
-    }
-  }, [interval])
+  const [interval, setInterval] = useState('30-d')
 
   //handle interval change
   const handleOnChangeInterval = (value: string) => {
