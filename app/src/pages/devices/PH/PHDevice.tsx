@@ -34,24 +34,24 @@ const getPHRules = async () => {
   // Get rules from API
   const rules = [
     {
-      ruleId: 'ph-1',
+      ruleId: 'ph-upper',
       title: 'Upper PH threshold',
       recomended: 8,
-      description: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.',
+      description: 'Upper PH threshold',
       value: 8,
       min: 1,
-      max: 14,
+      max: 13,
       type: 'Automatic',
       isEnabled: true,
     },
     {
-      ruleId: 'ph-2',
+      ruleId: 'ph-lower',
       title: 'Lowe PH threshold',
       recomended: 3,
-      description: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.',
+      description: 'Lower PH threshold',
       value: 3,
       min: 1,
-      max: 14,
+      max: 13,
       type: 'Manual',
       isEnabled: false,
     },
@@ -157,6 +157,25 @@ const PHDevice: React.FC<PHDeviceProps> = ({ interval }) => {
     fetchData()
   }, [interval])
 
+  const handleRuleChange = (rule: { ruleId: string; value: number }) => {
+    console.log('Rule changed:', rule)
+    const newRules = ruleData.map((item) => {
+      if (item.ruleId === rule.ruleId) {
+        return { ...item, value: rule.value }
+      }
+      return item
+    })
+
+    if (data) {
+      setData({
+        ...data,
+        threshold: { min: newRules[1].value, max: newRules[0].value },
+      })
+    }
+
+    setRules(newRules)
+  }
+
   if (loading) return <div>Loading...</div>
   if (error) return <div>{error}</div>
 
@@ -189,12 +208,15 @@ const PHDevice: React.FC<PHDeviceProps> = ({ interval }) => {
               </p>
               <CategoryBar
                 values={[
-                  data.threshold.min,
+                  1,
+                  data.threshold.min - 1,
                   data.threshold.max - data.threshold.min,
-                  14 - data.threshold.max,
+                  14 - data.threshold.max - 1,
+                  1,
                 ]}
-                colors={['rose', 'emerald', 'rose']}
+                colors={['slate', 'rose', 'emerald', 'rose', 'slate']}
                 markerValue={data.current}
+                className="px-4"
               />
             </Card>
             <div className="h-36 p-0 gap-4 grid grid-cols-1 sm:grid-cols-3">
@@ -240,10 +262,11 @@ const PHDevice: React.FC<PHDeviceProps> = ({ interval }) => {
                 recomended={rule.recomended}
                 description={rule.description}
                 ruleValue={rule.value}
-                maxValue={rule.max}
-                minValue={rule.min}
+                maxValue={rule.ruleId === 'ph-lower' ? data.threshold.max - 0.1 : 13}
+                minValue={rule.ruleId === 'ph-upper' ? data.threshold.min + 0.1 : 1}
                 type={rule.type}
                 isEnabled={rule.isEnabled}
+                onValueChange={(value) => handleRuleChange({ ruleId: rule.ruleId, value })}
               />
             ))}
           </div>

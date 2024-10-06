@@ -14,6 +14,7 @@ const Rule = ({
   minValue,
   type,
   isEnabled,
+  onValueChange,
 }: {
   ruleId: string
   title: string
@@ -24,6 +25,7 @@ const Rule = ({
   minValue: number
   type: string
   isEnabled: boolean
+  onValueChange: (value: number) => void
 }) => {
   const [isEnabledState, setIsEnabledState] = useState(isEnabled)
   const [ruleValueState, setRuleValueState] = useState(ruleValue)
@@ -37,6 +39,7 @@ const Rule = ({
       setError(false)
     }
     setRuleValueState(value)
+    onValueChange(value)
   }
 
   const handleOnChangeType = (value: string) => {
@@ -79,6 +82,16 @@ const Rule = ({
                 {recomended ? (
                   <>
                     <br></br>Recomended value is {recomended}
+                  </>
+                ) : null}
+                {maxValue ? (
+                  <>
+                    <br></br>Max value is {maxValue}
+                  </>
+                ) : null}
+                {minValue ? (
+                  <>
+                    <br></br>Min value is {minValue}
                   </>
                 ) : null}
               </p>
