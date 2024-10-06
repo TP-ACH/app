@@ -53,7 +53,11 @@ const Client = {
   },
 
   user: async <T>() => {
-    return (await apiFacade.get<T>('user/me')) as unknown as Promise<User | ErrorMessage>
+    return (await apiFacade.get<T>('users/me')) as unknown as Promise<User | ErrorMessage>
+  },
+
+  updateUser: async <T>(data: User) => {
+    return (await apiFacade.put<T>('users/update', data)) as unknown as Promise<User | ErrorMessage>
   },
 
   sensor: async <T>(data: SensorRquest) => {

@@ -44,13 +44,13 @@ const Settings = () => {
               </Tab>
             </TabList>
             <TabPanels>
-              <TabPanel className="mt-4">
+              <TabPanel className="mt-6">
                 <General />
               </TabPanel>
-              <TabPanel className="mt-4">
+              <TabPanel className="mt-6">
                 <Notifications />
               </TabPanel>
-              <TabPanel className="mt-4">
+              <TabPanel className="mt-6">
                 <Account />
               </TabPanel>
             </TabPanels>
