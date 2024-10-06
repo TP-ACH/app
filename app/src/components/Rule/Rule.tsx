@@ -81,17 +81,17 @@ const Rule = ({
                 {description}
                 {recomended ? (
                   <>
-                    <br></br>Recomended value is {recomended}
+                    <br></br>Recomended value is <b>{recomended}</b>
                   </>
                 ) : null}
                 {maxValue ? (
                   <>
-                    <br></br>Max value is {maxValue}
+                    <br></br>Max value is <b>{maxValue}</b>
                   </>
                 ) : null}
                 {minValue ? (
                   <>
-                    <br></br>Min value is {minValue}
+                    <br></br>Min value is <b>{minValue}</b>
                   </>
                 ) : null}
               </p>
