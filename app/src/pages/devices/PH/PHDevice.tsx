@@ -3,31 +3,9 @@ import { useState, useEffect } from 'react'
 import { Card, LineChart, CategoryBar, Divider } from '@tremor/react'
 import { Rule } from '../../../components'
 import { Client, SensorRquest, SensorResponse, ErrorMessage } from '../../../services'
-import { toZonedTime, format } from 'date-fns-tz'
+import { getIntervalDates } from '../../../services/Helper'
 
 import './PHDevice.scss'
-
-// PH data
-/*import dataPH from '../data/ph.json'
-const deviceData = {
-  values: [] as { time: string; min: number; max: number; PH: number }[],
-  min: dataPH.min,
-  max: dataPH.max,
-  avg: dataPH.avg,
-  threshold: dataPH.threshold as { min: number; max: number },
-  interval: dataPH.interval,
-  current: dataPH.current,
-  unit: dataPH.unit,
-}
-
-deviceData.values = dataPH.data.map((item) => {
-  return {
-    time: item.time,
-    min: deviceData.threshold.min,
-    max: deviceData.threshold.max,
-    PH: item.value,
-  }
-})*/
 
 interface DeviceData {
   values: { time: string; min: number; max: number; PH: number }[]
@@ -52,44 +30,6 @@ interface RuleData {
   isEnabled: boolean
 }
 
-const getIntervalDates = (interval: string) => {
-  const timeZone = 'America/Buenos_Aires'
-
-  const endDate = toZonedTime(new Date(), timeZone)
-  const startDate = toZonedTime(new Date(), timeZone)
-
-  // interval value format is number-time e.g. 1-m, 1-h, 1-d, 1-w, 1-m, 3-m, 6-m, 1-y
-  const [value, time] = interval.split('-')
-  switch (time) {
-    case 'm':
-      startDate.setMinutes(startDate.getMinutes() - parseInt(value))
-      break
-    case 'h':
-      startDate.setHours(startDate.getHours() - parseInt(value))
-      break
-    case 'd':
-      startDate.setDate(startDate.getDate() - parseInt(value))
-      break
-    case 'w':
-      startDate.setDate(startDate.getDate() - parseInt(value) * 7)
-      break
-    case 'M':
-      startDate.setMonth(startDate.getMonth() - parseInt(value))
-      break
-    case 'y':
-      startDate.setFullYear(startDate.getFullYear() - parseInt(value))
-      break
-    default:
-      startDate.setHours(startDate.getHours() - 1)
-      break
-  }
-
-  // return the dates in the datetime-local format
-  return {
-    startDate: format(startDate, "yyyy-MM-dd'T'HH:mm", { timeZone }),
-    endDate: format(endDate, "yyyy-MM-dd'T'HH:mm", { timeZone }),
-  }
-}
 const getPHRules = async () => {
   // Get rules from API
   const rules = [
