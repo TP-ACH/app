@@ -9,6 +9,7 @@ import {
 } from '@remixicon/react'
 import { Link } from 'react-router-dom'
 import { Client, RegisterRequest, RegisterResponse, ErrorMessage } from '../../services'
+import logo from '../../assets/logo.png'
 import './Register.scss'
 
 const Register = () => {
@@ -90,7 +91,9 @@ const Register = () => {
 
   return (
     <div id="register" className="content-center text-center">
-      <Title className="my-20">LOGO</Title>
+      <div className="my-20">
+        <img src={logo} alt="logo" className="h-[200px] m-auto" />
+      </div>
       <Card>
         <div className="mx-auto border-2 border-gray-400 rounded-lg">
           <form className="mx-auto max-w-md space-y-8 my-10" onSubmit={handleSubmit}>
