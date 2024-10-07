@@ -106,7 +106,7 @@ const Devices = () => {
                 <ECDevice interval={interval} />
               </TabPanel>
               <TabPanel className="mt-4">
-                <TemperatureDevice />
+                <TemperatureDevice interval={interval} />
               </TabPanel>
               <TabPanel className="mt-4">
                 <HumidityDevice />

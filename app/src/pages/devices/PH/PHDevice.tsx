@@ -167,10 +167,17 @@ const PHDevice: React.FC<PHDeviceProps> = ({ interval }) => {
     })
 
     if (data) {
-      setData({
-        ...data,
-        threshold: { min: newRules[1].value, max: newRules[0].value },
+      data.threshold = { min: newRules[1].value, max: newRules[0].value }
+
+      data.values = data.values.map((item) => {
+        return {
+          ...item,
+          min: data.threshold.min,
+          max: data.threshold.max,
+        }
       })
+
+      setData(data)
     }
 
     setRules(newRules)
@@ -262,8 +269,16 @@ const PHDevice: React.FC<PHDeviceProps> = ({ interval }) => {
                 recomended={rule.recomended}
                 description={rule.description}
                 ruleValue={rule.value}
-                maxValue={rule.ruleId === 'ph-lower' ? data.threshold.max - 0.1 : 13}
-                minValue={rule.ruleId === 'ph-upper' ? data.threshold.min + 0.1 : 1}
+                maxValue={
+                  rule.ruleId === 'ph-lower'
+                    ? Math.round((data.threshold.max - 0.01) * 100) / 100
+                    : 13
+                }
+                minValue={
+                  rule.ruleId === 'ph-upper'
+                    ? Math.round((data.threshold.min + 0.01) * 100) / 100
+                    : 1
+                }
                 type={rule.type}
                 isEnabled={rule.isEnabled}
                 onValueChange={(value) => handleRuleChange({ ruleId: rule.ruleId, value })}

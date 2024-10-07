@@ -167,10 +167,17 @@ const ECDevice: React.FC<ECDeviceProps> = ({ interval }) => {
     })
 
     if (data) {
-      setData({
-        ...data,
-        threshold: { min: newRules[1].value, max: newRules[0].value },
+      data.threshold = { min: newRules[1].value, max: newRules[0].value }
+
+      data.values = data.values.map((item) => {
+        return {
+          ...item,
+          min: data.threshold.min,
+          max: data.threshold.max,
+        }
       })
+
+      setData(data)
     }
 
     setRules(newRules)
