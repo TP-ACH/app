@@ -101,7 +101,7 @@ const Rule = ({
               <div className="h-10">
                 <NumberInput
                   error={error}
-                  errorMessage={'Value must be between' + minValue + ' and ' + maxValue}
+                  errorMessage={'Value must be between ' + minValue + ' and ' + maxValue}
                   value={ruleValueState}
                   max={maxValue}
                   min={minValue}
