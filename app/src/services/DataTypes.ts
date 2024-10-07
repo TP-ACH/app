@@ -52,6 +52,7 @@ export interface SensorResponse {
   ph: Sensor | null
   ec: Sensor | null
   temperature: Sensor | null
+  humidity: Sensor | null
 }
 
 export interface SensorRuleRequest {
