@@ -1,8 +1,15 @@
 import React from 'react'
 import { useState, useEffect } from 'react'
 import { Card, LineChart, CategoryBar, Divider } from '@tremor/react'
-import { Rule } from '../../../components'
-import { Client, SensorRquest, SensorResponse, ErrorMessage } from '../../../services'
+import { Rule as RuleComponent } from '../../../components'
+import {
+  Client,
+  SensorRquest,
+  SensorResponse,
+  Rule,
+  SpeciesRules,
+  ErrorMessage,
+} from '../../../services'
 import { getIntervalDates } from '../../../services/Helper'
 
 import './PHDevice.scss'
@@ -21,46 +28,68 @@ interface DeviceData {
 interface RuleData {
   ruleId: string
   title: string
-  recomended: number
-  description: string
   value: number
   min: number
   max: number
   type: string
   isEnabled: boolean
+  rule: Rule
 }
 
-const getPHRules = async () => {
-  // Get rules from API
-  const rules = [
-    {
-      ruleId: 'ph-upper',
-      title: 'Upper PH threshold',
-      recomended: 8,
-      description: 'Upper PH threshold',
-      value: 8,
-      min: 1,
-      max: 13,
-      type: 'Automatic',
-      isEnabled: true,
-    },
-    {
-      ruleId: 'ph-lower',
-      title: 'Lowe PH threshold',
-      recomended: 3,
-      description: 'Lower PH threshold',
-      value: 3,
-      min: 1,
-      max: 13,
-      type: 'Manual',
-      isEnabled: false,
-    },
-  ]
+const getPHRules = async (species: string, device: string) => {
+  // if species is empty get device rules
+  // else get species default rules
+  let rules: RuleData[] = []
+
+  if (species === 'custom') {
+    // Get rules from API
+    const response = await Client.getDeviceRules<SpeciesRules | ErrorMessage>(device)
+    if ('rules_by_sensor' in response) {
+      response.rules_by_sensor.map((sensor) => {
+        if (sensor.sensor === 'ph') {
+          rules = sensor.rules.map((rule: Rule) => {
+            return {
+              ruleId: 'ph-' + (rule.compare === 'greater' ? 'upper' : 'lower'),
+              title: rule.compare === 'greater' ? 'Upper PH threshold' : 'Lower PH threshold',
+              value: rule.bound,
+              min: 1,
+              max: 13,
+              type: rule.action.type,
+              isEnabled: rule.enabled,
+              rule: rule,
+            }
+          })
+        }
+      })
+    }
+  } else {
+    // Get default rules from API
+    const response = await Client.getDefaultRules<SpeciesRules | ErrorMessage>(species)
+    if ('rules_by_sensor' in response) {
+      response.rules_by_sensor.map((sensor) => {
+        if (sensor.sensor === 'ph') {
+          rules = sensor.rules.map((rule: Rule) => {
+            return {
+              ruleId: 'ph-' + (rule.compare === 'greater' ? 'upper' : 'lower'),
+              title: rule.compare === 'greater' ? 'Upper PH threshold' : 'Lower PH threshold',
+              value: rule.bound,
+              min: 1,
+              max: 13,
+              type: rule.action.type,
+              isEnabled: rule.enabled,
+              rule: rule,
+            }
+          })
+        }
+      })
+    }
+  }
 
   return rules
 }
 
-const getPHData = async (interval: string, rules: RuleData[]) => {
+const getPHData = async (interval: string, device: string, rules: RuleData[]) => {
+  console.log('Getting PH data', rules)
   const DeviceData: DeviceData = {
     values: [] as { time: string; min: number; max: number; PH: number }[],
     min: 0,
@@ -73,21 +102,15 @@ const getPHData = async (interval: string, rules: RuleData[]) => {
     title: 'PH',
   }
 
-  console.log('Getting PH data')
-
   const { startDate, endDate } = getIntervalDates(interval)
-  console.log('Start date:', startDate)
-  console.log('End date:', endDate)
-
   const data: SensorRquest = {
-    device_id: 'fx393',
+    device_id: device,
     sensor: 'ph',
     start_date: startDate,
     end_date: endDate,
   }
 
   const response = await Client.sensor<SensorResponse | ErrorMessage>(data)
-  console.log(response)
 
   if ('ph' in response && response.ph?.data.length === 0) {
     console.error('No data available')
@@ -106,7 +129,11 @@ const getPHData = async (interval: string, rules: RuleData[]) => {
   DeviceData.current =
     Math.round((response.ph?.data[response.ph.data.length - 1].reading || 0) * 100) / 100
 
-  DeviceData.threshold = { min: rules[1].value, max: rules[0].value }
+  DeviceData.threshold = {
+    min: rules.find((rule) => rule.ruleId === 'ph-lower')?.value || 0,
+    max: rules.find((rule) => rule.ruleId === 'ph-upper')?.value || 0,
+  }
+  console.log('Threshold:', DeviceData.threshold)
 
   DeviceData.values =
     response.ph?.data.map((item) => {
@@ -118,15 +145,16 @@ const getPHData = async (interval: string, rules: RuleData[]) => {
       }
     }) || []
 
-  console.log(DeviceData)
   return DeviceData
 }
 
 interface PHDeviceProps {
   interval: string
+  species: string
+  device: string
 }
 
-const PHDevice: React.FC<PHDeviceProps> = ({ interval }) => {
+const PHDevice: React.FC<PHDeviceProps> = ({ interval, species, device }) => {
   const [ruleData, setRules] = useState<RuleData[]>([])
   const [data, setData] = useState<DeviceData | null>(null)
   const [loading, setLoading] = useState(true)
@@ -135,15 +163,16 @@ const PHDevice: React.FC<PHDeviceProps> = ({ interval }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const ruleData = await getPHRules()
-        setRules(ruleData)
-        const data = await getPHData(interval, ruleData)
-        if (!data || data.values.length === 0) {
+        const rule = await getPHRules(species, device)
+        setRules(rule)
+
+        const ph = await getPHData(interval, device, rule)
+        if (!ph || ph.values.length === 0) {
           setError('No data available')
           setData(null)
         } else {
           setError('')
-          setData(data)
+          setData(ph)
         }
       } catch (error) {
         console.error('Error fetching data:', error)
@@ -155,10 +184,9 @@ const PHDevice: React.FC<PHDeviceProps> = ({ interval }) => {
     }
 
     fetchData()
-  }, [interval])
+  }, [interval, species, device])
 
   const handleRuleChange = (rule: { ruleId: string; value: number }) => {
-    console.log('Rule changed:', rule)
     const newRules = ruleData.map((item) => {
       if (item.ruleId === rule.ruleId) {
         return { ...item, value: rule.value }
@@ -167,7 +195,10 @@ const PHDevice: React.FC<PHDeviceProps> = ({ interval }) => {
     })
 
     if (data) {
-      data.threshold = { min: newRules[1].value, max: newRules[0].value }
+      data.threshold = {
+        min: newRules.find((rule) => rule.ruleId === 'ph-lower')?.value || 0,
+        max: newRules.find((rule) => rule.ruleId === 'ph-upper')?.value || 0,
+      }
 
       data.values = data.values.map((item) => {
         return {
@@ -262,21 +293,23 @@ const PHDevice: React.FC<PHDeviceProps> = ({ interval }) => {
           <Divider className="my-10">Settings</Divider>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {ruleData.map((rule) => (
-              <Rule
+              <RuleComponent
                 key={rule.ruleId}
+                device={device}
+                sensor="ph"
+                ruleData={rule.rule}
                 ruleId={rule.ruleId}
                 title={rule.title}
-                recomended={rule.recomended}
-                description={rule.description}
                 ruleValue={rule.value}
+                step={0.1}
                 maxValue={
                   rule.ruleId === 'ph-lower'
-                    ? Math.round((data.threshold.max - 0.01) * 100) / 100
+                    ? Math.round((data.threshold.max - 0.1) * 100) / 100
                     : 13
                 }
                 minValue={
                   rule.ruleId === 'ph-upper'
-                    ? Math.round((data.threshold.min + 0.01) * 100) / 100
+                    ? Math.round((data.threshold.min + 0.1) * 100) / 100
                     : 1
                 }
                 type={rule.type}

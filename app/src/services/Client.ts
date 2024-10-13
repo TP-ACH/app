@@ -4,13 +4,14 @@ import {
   LoginRequest,
   LoginResponse,
   ErrorMessage,
+  Message,
   RegisterRequest,
   RegisterResponse,
   User,
   SensorRquest,
   SensorResponse,
-  SensorRuleRequest,
-  SensorRuleResponse,
+  SpeciesRules,
+  DeviceRules,
 } from './DataTypes'
 
 apiFacade.interceptors.request.use((config) => {
@@ -73,16 +74,25 @@ const Client = {
     )) as unknown as Promise<SensorResponse | ErrorMessage>
   },
 
-  rules: async <T>(data: SensorRuleRequest) => {
+  getDefaultRules: async <T>(species: string) => {
+    return (await apiFacade.get<T>('rules/default/' + '?species=' + species)) as unknown as Promise<
+      SpeciesRules | ErrorMessage
+    >
+  },
+
+  getDeviceRules: async <T>(device_id: string) => {
     return (await apiFacade.get<T>(
-      'rules/sensor/' +
-        '?device_id=' +
-        data.device_id +
-        '&sensor=' +
-        data.sensor +
-        '&reading=' +
-        data.reading
-    )) as unknown as Promise<SensorRuleResponse | ErrorMessage>
+      'rules/device/' + '?device_id=' + device_id
+    )) as unknown as Promise<DeviceRules | ErrorMessage>
+  },
+
+  putDeviceRules: async <T>(device_id: string, rules: DeviceRules) => {
+    console.log('Device ID:', device_id)
+    console.log('Rules:', rules)
+    return (await apiFacade.put<T>(
+      'rules/device/' + '?device_id=' + device_id,
+      rules
+    )) as unknown as Promise<Message | ErrorMessage>
   },
 }
 

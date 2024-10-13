@@ -8,6 +8,7 @@ export type {
   User,
   SensorRquest,
   SensorResponse,
-  SensorRuleRequest,
-  SensorRuleResponse,
+  Rule,
+  DeviceRules,
+  SpeciesRules,
 } from './DataTypes'

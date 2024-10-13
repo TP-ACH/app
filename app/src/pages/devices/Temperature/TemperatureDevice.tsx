@@ -1,8 +1,15 @@
 import React from 'react'
 import { useState, useEffect } from 'react'
 import { Card, LineChart, CategoryBar, Divider } from '@tremor/react'
-import { Rule } from '../../../components'
-import { Client, SensorRquest, SensorResponse, ErrorMessage } from '../../../services'
+import { Rule as RuleComponent } from '../../../components'
+import {
+  Client,
+  SensorRquest,
+  SensorResponse,
+  Rule,
+  SpeciesRules,
+  ErrorMessage,
+} from '../../../services'
 import { getIntervalDates } from '../../../services/Helper'
 
 import './TemperatureDevice.scss'
@@ -21,46 +28,74 @@ interface DeviceData {
 interface RuleData {
   ruleId: string
   title: string
-  recomended: number
-  description: string
   value: number
   min: number
   max: number
   type: string
   isEnabled: boolean
+  rule: Rule
 }
 
-const getTemperatureRules = async () => {
-  // Get rules from API
-  const rules = [
-    {
-      ruleId: 'temperature-upper',
-      title: 'Upper Temperature threshold',
-      recomended: 28,
-      description: 'Upper Temperature threshold',
-      value: 38,
-      min: 10,
-      max: 40,
-      type: 'Automatic',
-      isEnabled: true,
-    },
-    {
-      ruleId: 'temperature-lower',
-      title: 'Lowe Temperature threshold',
-      recomended: 21,
-      description: 'Lower Temperature threshold',
-      value: 10,
-      min: 10,
-      max: 40,
-      type: 'Manual',
-      isEnabled: false,
-    },
-  ]
+const getTemperatureRules = async (species: string, device: string) => {
+  // if species is empty get device rules
+  // else get species default rules
+  let rules: RuleData[] = []
+
+  if (species === 'custom') {
+    // Get rules from API
+    const response = await Client.getDeviceRules<SpeciesRules | ErrorMessage>(device)
+    if ('rules_by_sensor' in response) {
+      response.rules_by_sensor.map((sensor) => {
+        if (sensor.sensor === 'temperature') {
+          rules = sensor.rules.map((rule: Rule) => {
+            return {
+              ruleId: 'temperature-' + (rule.compare === 'greater' ? 'upper' : 'lower'),
+              title:
+                rule.compare === 'greater'
+                  ? 'Upper Temperature threshold'
+                  : 'Lower Temperature threshold',
+              value: rule.bound,
+              min: 1,
+              max: 50,
+              type: rule.action.type,
+              isEnabled: rule.enabled,
+              rule: rule,
+            }
+          })
+        }
+      })
+    }
+  } else {
+    // Get default rules from API
+    const response = await Client.getDefaultRules<SpeciesRules | ErrorMessage>(species)
+    if ('rules_by_sensor' in response) {
+      response.rules_by_sensor.map((sensor) => {
+        if (sensor.sensor === 'temperature') {
+          rules = sensor.rules.map((rule: Rule) => {
+            return {
+              ruleId: 'temperature-' + (rule.compare === 'greater' ? 'upper' : 'lower'),
+              title:
+                rule.compare === 'greater'
+                  ? 'Upper Temperature threshold'
+                  : 'Lower Temperature threshold',
+              value: rule.bound,
+              min: 1,
+              max: 50,
+              type: rule.action.type,
+              isEnabled: rule.enabled,
+              rule: rule,
+            }
+          })
+        }
+      })
+    }
+  }
 
   return rules
 }
 
-const getTemperatureData = async (interval: string, rules: RuleData[]) => {
+const getTemperatureData = async (interval: string, device: string, rules: RuleData[]) => {
+  console.log('Getting Temperature data', rules)
   const DeviceData: DeviceData = {
     values: [] as { time: string; min: number; max: number; Temperature: number }[],
     min: 0,
@@ -73,21 +108,15 @@ const getTemperatureData = async (interval: string, rules: RuleData[]) => {
     title: 'Temperature',
   }
 
-  console.log('Getting Temperature data')
-
   const { startDate, endDate } = getIntervalDates(interval)
-  console.log('Start date:', startDate)
-  console.log('End date:', endDate)
-
   const data: SensorRquest = {
-    device_id: 'fx393',
+    device_id: device,
     sensor: 'temperature',
     start_date: startDate,
     end_date: endDate,
   }
 
   const response = await Client.sensor<SensorResponse | ErrorMessage>(data)
-  console.log(response)
 
   if ('temperature' in response && response.temperature?.data.length === 0) {
     console.error('No data available')
@@ -108,7 +137,11 @@ const getTemperatureData = async (interval: string, rules: RuleData[]) => {
       (response.temperature?.data[response.temperature.data.length - 1].reading || 0) * 100
     ) / 100
 
-  DeviceData.threshold = { min: rules[1].value, max: rules[0].value }
+  DeviceData.threshold = {
+    min: rules.find((rule) => rule.ruleId === 'temperature-lower')?.value || 0,
+    max: rules.find((rule) => rule.ruleId === 'temperature-upper')?.value || 0,
+  }
+  console.log('Threshold:', DeviceData.threshold)
 
   DeviceData.values =
     response.temperature?.data.map((item) => {
@@ -120,15 +153,16 @@ const getTemperatureData = async (interval: string, rules: RuleData[]) => {
       }
     }) || []
 
-  console.log(DeviceData)
   return DeviceData
 }
 
 interface TemperatureDeviceProps {
   interval: string
+  species: string
+  device: string
 }
 
-const TemperatureDevice: React.FC<TemperatureDeviceProps> = ({ interval }) => {
+const TemperatureDevice: React.FC<TemperatureDeviceProps> = ({ interval, species, device }) => {
   const [ruleData, setRules] = useState<RuleData[]>([])
   const [data, setData] = useState<DeviceData | null>(null)
   const [loading, setLoading] = useState(true)
@@ -137,15 +171,16 @@ const TemperatureDevice: React.FC<TemperatureDeviceProps> = ({ interval }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const ruleData = await getTemperatureRules()
-        setRules(ruleData)
-        const data = await getTemperatureData(interval, ruleData)
-        if (!data || data.values.length === 0) {
+        const rule = await getTemperatureRules(species, device)
+        setRules(rule)
+
+        const temperature = await getTemperatureData(interval, device, rule)
+        if (!temperature || temperature.values.length === 0) {
           setError('No data available')
           setData(null)
         } else {
           setError('')
-          setData(data)
+          setData(temperature)
         }
       } catch (error) {
         console.error('Error fetching data:', error)
@@ -157,10 +192,9 @@ const TemperatureDevice: React.FC<TemperatureDeviceProps> = ({ interval }) => {
     }
 
     fetchData()
-  }, [interval])
+  }, [interval, species, device])
 
   const handleRuleChange = (rule: { ruleId: string; value: number }) => {
-    console.log('Rule changed:', rule)
     const newRules = ruleData.map((item) => {
       if (item.ruleId === rule.ruleId) {
         return { ...item, value: rule.value }
@@ -169,7 +203,10 @@ const TemperatureDevice: React.FC<TemperatureDeviceProps> = ({ interval }) => {
     })
 
     if (data) {
-      data.threshold = { min: newRules[1].value, max: newRules[0].value }
+      data.threshold = {
+        min: newRules.find((rule) => rule.ruleId === 'temperature-lower')?.value || 0,
+        max: newRules.find((rule) => rule.ruleId === 'temperature-upper')?.value || 0,
+      }
 
       data.values = data.values.map((item) => {
         return {
@@ -187,8 +224,6 @@ const TemperatureDevice: React.FC<TemperatureDeviceProps> = ({ interval }) => {
 
   if (loading) return <div>Loading...</div>
   if (error) return <div>{error}</div>
-
-  console.log('threshold:', data?.threshold)
 
   return (
     <div>
@@ -208,7 +243,7 @@ const TemperatureDevice: React.FC<TemperatureDeviceProps> = ({ interval }) => {
                 categories={['Temperature', 'min', 'max']}
                 colors={['emerald', 'red', 'red']}
                 minValue={0}
-                maxValue={45}
+                maxValue={50}
               />
             </Card>
             <Card className="h-36 rounded-tremor-small p-2">
@@ -264,22 +299,24 @@ const TemperatureDevice: React.FC<TemperatureDeviceProps> = ({ interval }) => {
           <Divider className="my-10">Settings</Divider>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {ruleData.map((rule) => (
-              <Rule
+              <RuleComponent
                 key={rule.ruleId}
+                device={device}
+                sensor="temperature"
+                ruleData={rule.rule}
                 ruleId={rule.ruleId}
                 title={rule.title}
-                recomended={rule.recomended}
-                description={rule.description}
                 ruleValue={rule.value}
+                step={1}
                 maxValue={
                   rule.ruleId === 'temperature-lower'
-                    ? Math.round((data.threshold.max - 0.01) * 100) / 100
-                    : 45
+                    ? Math.round((data.threshold.max - 0.1) * 100) / 100
+                    : 50
                 }
                 minValue={
                   rule.ruleId === 'temperature-upper'
-                    ? Math.round((data.threshold.min + 0.01) * 100) / 100
-                    : 0
+                    ? Math.round((data.threshold.min + 0.1) * 100) / 100
+                    : 1
                 }
                 type={rule.type}
                 isEnabled={rule.isEnabled}

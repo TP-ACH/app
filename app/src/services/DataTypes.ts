@@ -12,6 +12,10 @@ export interface ErrorMessage {
   error: string
 }
 
+export interface Message {
+  message: string
+}
+
 export interface RegisterRequest {
   user: {
     username: string
@@ -54,23 +58,34 @@ export interface SensorResponse {
   temperature: Sensor | null
   humidity: Sensor | null
 }
-
-export interface SensorRuleRequest {
-  device_id: string
-  sensor: string
-  reading: number
-}
-export interface SensorRule {
+export interface Rule {
   bound: number
   compare: string
   time: number
-  enabled: number
+  enabled: boolean
   action: {
     type: string
     dest: string
   }
 }
-export interface SensorRuleResponse {
-  sensor: string
-  rules: SensorRule[]
+export interface LightHours {
+  start: string
+  end: string
+}
+export interface DeviceRules {
+  device: string
+  rules_by_sensor: {
+    sensor: string
+    rules: Rule[]
+  }[]
+  light_hours?: LightHours
+}
+
+export interface SpeciesRules {
+  species: string
+  rules_by_sensor: {
+    sensor: string
+    rules: Rule[]
+  }[]
+  light_hours?: LightHours
 }

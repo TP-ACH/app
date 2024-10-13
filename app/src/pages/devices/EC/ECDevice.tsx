@@ -1,8 +1,15 @@
 import React from 'react'
 import { useState, useEffect } from 'react'
 import { Card, LineChart, CategoryBar, Divider } from '@tremor/react'
-import { Rule } from '../../../components'
-import { Client, SensorRquest, SensorResponse, ErrorMessage } from '../../../services'
+import { Rule as RuleComponent } from '../../../components'
+import {
+  Client,
+  SensorRquest,
+  SensorResponse,
+  Rule,
+  SpeciesRules,
+  ErrorMessage,
+} from '../../../services'
 import { getIntervalDates } from '../../../services/Helper'
 
 import './ECDevice.scss'
@@ -21,46 +28,68 @@ interface DeviceData {
 interface RuleData {
   ruleId: string
   title: string
-  recomended: number
-  description: string
   value: number
   min: number
   max: number
   type: string
   isEnabled: boolean
+  rule: Rule
 }
 
-const getECRules = async () => {
-  // Get rules from API
-  const rules = [
-    {
-      ruleId: 'ec-upper',
-      title: 'Upper EC threshold',
-      recomended: 2.5,
-      description: 'Upper EC threshold',
-      value: 2.8,
-      min: 0,
-      max: 3,
-      type: 'Automatic',
-      isEnabled: true,
-    },
-    {
-      ruleId: 'ec-lower',
-      title: 'Lowe EC threshold',
-      recomended: 1,
-      description: 'Lower EC threshold',
-      value: 1.5,
-      min: 0,
-      max: 3,
-      type: 'Manual',
-      isEnabled: false,
-    },
-  ]
+const getECRules = async (species: string, device: string) => {
+  // if species is empty get device rules
+  // else get species default rules
+  let rules: RuleData[] = []
+
+  if (species === 'custom') {
+    // Get rules from API
+    const response = await Client.getDeviceRules<SpeciesRules | ErrorMessage>(device)
+    if ('rules_by_sensor' in response) {
+      response.rules_by_sensor.map((sensor) => {
+        if (sensor.sensor === 'ec') {
+          rules = sensor.rules.map((rule: Rule) => {
+            return {
+              ruleId: 'ec-' + (rule.compare === 'greater' ? 'upper' : 'lower'),
+              title: rule.compare === 'greater' ? 'Upper EC threshold' : 'Lower EC threshold',
+              value: rule.bound,
+              min: 0,
+              max: 3,
+              type: rule.action.type,
+              isEnabled: rule.enabled,
+              rule: rule,
+            }
+          })
+        }
+      })
+    }
+  } else {
+    // Get default rules from API
+    const response = await Client.getDefaultRules<SpeciesRules | ErrorMessage>(species)
+    if ('rules_by_sensor' in response) {
+      response.rules_by_sensor.map((sensor) => {
+        if (sensor.sensor === 'ec') {
+          rules = sensor.rules.map((rule: Rule) => {
+            return {
+              ruleId: 'ec-' + (rule.compare === 'greater' ? 'upper' : 'lower'),
+              title: rule.compare === 'greater' ? 'Upper EC threshold' : 'Lower EC threshold',
+              value: rule.bound,
+              min: 0,
+              max: 3,
+              type: rule.action.type,
+              isEnabled: rule.enabled,
+              rule: rule,
+            }
+          })
+        }
+      })
+    }
+  }
 
   return rules
 }
 
-const getECData = async (interval: string, rules: RuleData[]) => {
+const getECData = async (interval: string, device: string, rules: RuleData[]) => {
+  console.log('Getting EC data', rules)
   const DeviceData: DeviceData = {
     values: [] as { time: string; min: number; max: number; EC: number }[],
     min: 0,
@@ -73,21 +102,15 @@ const getECData = async (interval: string, rules: RuleData[]) => {
     title: 'EC',
   }
 
-  console.log('Getting EC data')
-
   const { startDate, endDate } = getIntervalDates(interval)
-  console.log('Start date:', startDate)
-  console.log('End date:', endDate)
-
   const data: SensorRquest = {
-    device_id: 'fx393',
+    device_id: device,
     sensor: 'ec',
     start_date: startDate,
     end_date: endDate,
   }
 
   const response = await Client.sensor<SensorResponse | ErrorMessage>(data)
-  console.log(response)
 
   if ('ec' in response && response.ec?.data.length === 0) {
     console.error('No data available')
@@ -106,7 +129,11 @@ const getECData = async (interval: string, rules: RuleData[]) => {
   DeviceData.current =
     Math.round((response.ec?.data[response.ec.data.length - 1].reading || 0) * 100) / 100
 
-  DeviceData.threshold = { min: rules[1].value, max: rules[0].value }
+  DeviceData.threshold = {
+    min: rules.find((rule) => rule.ruleId === 'ec-lower')?.value || 0,
+    max: rules.find((rule) => rule.ruleId === 'ec-upper')?.value || 0,
+  }
+  console.log('Threshold:', DeviceData.threshold)
 
   DeviceData.values =
     response.ec?.data.map((item) => {
@@ -118,15 +145,18 @@ const getECData = async (interval: string, rules: RuleData[]) => {
       }
     }) || []
 
-  console.log(DeviceData)
+  console.log('TEST', Math.round((DeviceData.threshold.min + 0.01) * 100) / 100)
+
   return DeviceData
 }
 
 interface ECDeviceProps {
   interval: string
+  species: string
+  device: string
 }
 
-const ECDevice: React.FC<ECDeviceProps> = ({ interval }) => {
+const ECDevice: React.FC<ECDeviceProps> = ({ interval, species, device }) => {
   const [ruleData, setRules] = useState<RuleData[]>([])
   const [data, setData] = useState<DeviceData | null>(null)
   const [loading, setLoading] = useState(true)
@@ -135,15 +165,16 @@ const ECDevice: React.FC<ECDeviceProps> = ({ interval }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const ruleData = await getECRules()
-        setRules(ruleData)
-        const data = await getECData(interval, ruleData)
-        if (!data || data.values.length === 0) {
+        const rule = await getECRules(species, device)
+        setRules(rule)
+
+        const ec = await getECData(interval, device, rule)
+        if (!ec || ec.values.length === 0) {
           setError('No data available')
           setData(null)
         } else {
           setError('')
-          setData(data)
+          setData(ec)
         }
       } catch (error) {
         console.error('Error fetching data:', error)
@@ -155,10 +186,9 @@ const ECDevice: React.FC<ECDeviceProps> = ({ interval }) => {
     }
 
     fetchData()
-  }, [interval])
+  }, [interval, species, device])
 
   const handleRuleChange = (rule: { ruleId: string; value: number }) => {
-    console.log('Rule changed:', rule)
     const newRules = ruleData.map((item) => {
       if (item.ruleId === rule.ruleId) {
         return { ...item, value: rule.value }
@@ -167,7 +197,10 @@ const ECDevice: React.FC<ECDeviceProps> = ({ interval }) => {
     })
 
     if (data) {
-      data.threshold = { min: newRules[1].value, max: newRules[0].value }
+      data.threshold = {
+        min: newRules.find((rule) => rule.ruleId === 'ec-lower')?.value || 0,
+        max: newRules.find((rule) => rule.ruleId === 'ec-upper')?.value || 0,
+      }
 
       data.values = data.values.map((item) => {
         return {
@@ -260,13 +293,15 @@ const ECDevice: React.FC<ECDeviceProps> = ({ interval }) => {
           <Divider className="my-10">Settings</Divider>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {ruleData.map((rule) => (
-              <Rule
+              <RuleComponent
                 key={rule.ruleId}
+                device={device}
+                sensor="ec"
+                ruleData={rule.rule}
                 ruleId={rule.ruleId}
                 title={rule.title}
-                recomended={rule.recomended}
-                description={rule.description}
                 ruleValue={rule.value}
+                step={0.01}
                 maxValue={
                   rule.ruleId === 'ec-lower'
                     ? Math.round((data.threshold.max - 0.01) * 100) / 100
@@ -275,7 +310,7 @@ const ECDevice: React.FC<ECDeviceProps> = ({ interval }) => {
                 minValue={
                   rule.ruleId === 'ec-upper'
                     ? Math.round((data.threshold.min + 0.01) * 100) / 100
-                    : 0
+                    : 0.01
                 }
                 type={rule.type}
                 isEnabled={rule.isEnabled}

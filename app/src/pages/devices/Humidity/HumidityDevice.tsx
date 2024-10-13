@@ -1,8 +1,15 @@
 import React from 'react'
 import { useState, useEffect } from 'react'
 import { Card, LineChart, CategoryBar, Divider } from '@tremor/react'
-import { Rule } from '../../../components'
-import { Client, SensorRquest, SensorResponse, ErrorMessage } from '../../../services'
+import { Rule as RuleComponent } from '../../../components'
+import {
+  Client,
+  SensorRquest,
+  SensorResponse,
+  Rule,
+  SpeciesRules,
+  ErrorMessage,
+} from '../../../services'
 import { getIntervalDates } from '../../../services/Helper'
 
 import './HumidityDevice.scss'
@@ -21,46 +28,74 @@ interface DeviceData {
 interface RuleData {
   ruleId: string
   title: string
-  recomended: number
-  description: string
   value: number
   min: number
   max: number
   type: string
   isEnabled: boolean
+  rule: Rule
 }
 
-const getHumidityRules = async () => {
-  // Get rules from API
-  const rules = [
-    {
-      ruleId: 'humidity-upper',
-      title: 'Upper Humidity threshold',
-      recomended: 95,
-      description: 'Upper Humidity threshold',
-      value: 85,
-      min: 0,
-      max: 100,
-      type: 'Automatic',
-      isEnabled: true,
-    },
-    {
-      ruleId: 'humidity-lower',
-      title: 'Lowe Humidity threshold',
-      recomended: 30,
-      description: 'Lower Humidity threshold',
-      value: 25,
-      min: 0,
-      max: 100,
-      type: 'Manual',
-      isEnabled: false,
-    },
-  ]
+const getHumidityRules = async (species: string, device: string) => {
+  // if species is empty get device rules
+  // else get species default rules
+  let rules: RuleData[] = []
+
+  if (species === 'custom') {
+    // Get rules from API
+    const response = await Client.getDeviceRules<SpeciesRules | ErrorMessage>(device)
+    if ('rules_by_sensor' in response) {
+      response.rules_by_sensor.map((sensor) => {
+        if (sensor.sensor === 'humidity') {
+          rules = sensor.rules.map((rule: Rule) => {
+            return {
+              ruleId: 'humidity-' + (rule.compare === 'greater' ? 'upper' : 'lower'),
+              title:
+                rule.compare === 'greater'
+                  ? 'Upper Humidity threshold'
+                  : 'Lower Humidity threshold',
+              value: rule.bound,
+              min: 1,
+              max: 100,
+              type: rule.action.type,
+              isEnabled: rule.enabled,
+              rule: rule,
+            }
+          })
+        }
+      })
+    }
+  } else {
+    // Get default rules from API
+    const response = await Client.getDefaultRules<SpeciesRules | ErrorMessage>(species)
+    if ('rules_by_sensor' in response) {
+      response.rules_by_sensor.map((sensor) => {
+        if (sensor.sensor === 'humidity') {
+          rules = sensor.rules.map((rule: Rule) => {
+            return {
+              ruleId: 'humidity-' + (rule.compare === 'greater' ? 'upper' : 'lower'),
+              title:
+                rule.compare === 'greater'
+                  ? 'Upper Humidity threshold'
+                  : 'Lower Humidity threshold',
+              value: rule.bound,
+              min: 1,
+              max: 100,
+              type: rule.action.type,
+              isEnabled: rule.enabled,
+              rule: rule,
+            }
+          })
+        }
+      })
+    }
+  }
 
   return rules
 }
 
-const getHumidityData = async (interval: string, rules: RuleData[]) => {
+const getHumidityData = async (interval: string, device: string, rules: RuleData[]) => {
+  console.log('Getting Humidity data', rules)
   const DeviceData: DeviceData = {
     values: [] as { time: string; min: number; max: number; Humidity: number }[],
     min: 0,
@@ -73,21 +108,15 @@ const getHumidityData = async (interval: string, rules: RuleData[]) => {
     title: 'Humidity',
   }
 
-  console.log('Getting Humidity data')
-
   const { startDate, endDate } = getIntervalDates(interval)
-  console.log('Start date:', startDate)
-  console.log('End date:', endDate)
-
   const data: SensorRquest = {
-    device_id: 'fx393',
+    device_id: device,
     sensor: 'humidity',
     start_date: startDate,
     end_date: endDate,
   }
 
   const response = await Client.sensor<SensorResponse | ErrorMessage>(data)
-  console.log(response)
 
   if ('humidity' in response && response.humidity?.data.length === 0) {
     console.error('No data available')
@@ -107,7 +136,11 @@ const getHumidityData = async (interval: string, rules: RuleData[]) => {
     Math.round((response.humidity?.data[response.humidity.data.length - 1].reading || 0) * 100) /
     100
 
-  DeviceData.threshold = { min: rules[1].value, max: rules[0].value }
+  DeviceData.threshold = {
+    min: rules.find((rule) => rule.ruleId === 'humidity-lower')?.value || 0,
+    max: rules.find((rule) => rule.ruleId === 'humidity-upper')?.value || 0,
+  }
+  console.log('Threshold:', DeviceData.threshold)
 
   DeviceData.values =
     response.humidity?.data.map((item) => {
@@ -119,15 +152,16 @@ const getHumidityData = async (interval: string, rules: RuleData[]) => {
       }
     }) || []
 
-  console.log(DeviceData)
   return DeviceData
 }
 
 interface HumidityDeviceProps {
   interval: string
+  species: string
+  device: string
 }
 
-const HumidityDevice: React.FC<HumidityDeviceProps> = ({ interval }) => {
+const HumidityDevice: React.FC<HumidityDeviceProps> = ({ interval, species, device }) => {
   const [ruleData, setRules] = useState<RuleData[]>([])
   const [data, setData] = useState<DeviceData | null>(null)
   const [loading, setLoading] = useState(true)
@@ -136,15 +170,16 @@ const HumidityDevice: React.FC<HumidityDeviceProps> = ({ interval }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const ruleData = await getHumidityRules()
-        setRules(ruleData)
-        const data = await getHumidityData(interval, ruleData)
-        if (!data || data.values.length === 0) {
+        const rule = await getHumidityRules(species, device)
+        setRules(rule)
+
+        const humidity = await getHumidityData(interval, device, rule)
+        if (!humidity || humidity.values.length === 0) {
           setError('No data available')
           setData(null)
         } else {
           setError('')
-          setData(data)
+          setData(humidity)
         }
       } catch (error) {
         console.error('Error fetching data:', error)
@@ -156,10 +191,9 @@ const HumidityDevice: React.FC<HumidityDeviceProps> = ({ interval }) => {
     }
 
     fetchData()
-  }, [interval])
+  }, [interval, species, device])
 
   const handleRuleChange = (rule: { ruleId: string; value: number }) => {
-    console.log('Rule changed:', rule)
     const newRules = ruleData.map((item) => {
       if (item.ruleId === rule.ruleId) {
         return { ...item, value: rule.value }
@@ -168,7 +202,10 @@ const HumidityDevice: React.FC<HumidityDeviceProps> = ({ interval }) => {
     })
 
     if (data) {
-      data.threshold = { min: newRules[1].value, max: newRules[0].value }
+      data.threshold = {
+        min: newRules.find((rule) => rule.ruleId === 'humidity-lower')?.value || 0,
+        max: newRules.find((rule) => rule.ruleId === 'humidity-upper')?.value || 0,
+      }
 
       data.values = data.values.map((item) => {
         return {
@@ -186,8 +223,6 @@ const HumidityDevice: React.FC<HumidityDeviceProps> = ({ interval }) => {
 
   if (loading) return <div>Loading...</div>
   if (error) return <div>{error}</div>
-
-  console.log('threshold:', data?.threshold)
 
   return (
     <div>
@@ -263,22 +298,24 @@ const HumidityDevice: React.FC<HumidityDeviceProps> = ({ interval }) => {
           <Divider className="my-10">Settings</Divider>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {ruleData.map((rule) => (
-              <Rule
+              <RuleComponent
                 key={rule.ruleId}
+                device={device}
+                sensor="humidity"
+                ruleData={rule.rule}
                 ruleId={rule.ruleId}
                 title={rule.title}
-                recomended={rule.recomended}
-                description={rule.description}
                 ruleValue={rule.value}
+                step={0.1}
                 maxValue={
                   rule.ruleId === 'humidity-lower'
-                    ? Math.round((data.threshold.max - 0.01) * 100) / 100
+                    ? Math.round((data.threshold.max - 0.1) * 100) / 100
                     : 100
                 }
                 minValue={
                   rule.ruleId === 'humidity-upper'
-                    ? Math.round((data.threshold.min + 0.01) * 100) / 100
-                    : 0
+                    ? Math.round((data.threshold.min + 0.1) * 100) / 100
+                    : 1
                 }
                 type={rule.type}
                 isEnabled={rule.isEnabled}
