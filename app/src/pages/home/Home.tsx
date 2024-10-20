@@ -234,6 +234,7 @@ const Home = () => {
               className="h-60 px-2"
               data={PHdata.values}
               index="time"
+              showXAxis={false}
               categories={['PH', 'min', 'max']}
               colors={['emerald', 'red', 'red']}
               xAxisLabel={PHdata.interval}
@@ -251,6 +252,7 @@ const Home = () => {
               className="h-60 px-2"
               data={ECdata.values}
               index="time"
+              showXAxis={false}
               categories={['EC', 'min', 'max']}
               colors={['emerald', 'red', 'red']}
               xAxisLabel={ECdata.interval}

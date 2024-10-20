@@ -5,6 +5,11 @@ export type {
   ErrorMessage,
   RegisterRequest,
   RegisterResponse,
+  User,
   SensorRquest,
   SensorResponse,
+  Rule,
+  DeviceRules,
+  SpeciesRules,
+  LightHours,
 } from './DataTypes'

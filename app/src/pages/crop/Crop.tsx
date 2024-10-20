@@ -1,12 +1,20 @@
 import React from 'react'
+import { useState } from 'react'
 import { SideNav } from '../../components'
-import { Card, Divider } from '@tremor/react'
+import { Card, Divider, Select, SelectItem } from '@tremor/react'
 import { Link } from 'react-router-dom'
 
 import './Crop.scss'
 import crop from '../../assets/crop.png'
 
 const Crop = () => {
+  const [species, setSpecies] = useState('')
+
+  //handle species change TODO
+  const handleOnChangeSpecies = (value: string) => {
+    setSpecies(value)
+  }
+
   return (
     <div id="crop" className="h-[75px]">
       <SideNav />
@@ -20,6 +28,37 @@ const Crop = () => {
         </header>
         <Divider />
         <Card className="mt-6 w-full">
+          <div>
+            <h4 className="font-semibold text-tremor-content-strong dark:text-dark-tremor-content-strong">
+              Species
+            </h4>
+            <p className="mt-1 text-tremor-default text-tremor-content dark:text-dark-tremor-content">
+              Select the species of the crop you are growing
+            </p>
+            <div className="mt-6 sm:flex sm:items-center sm:space-x-2 w-1/4">
+              <Select
+                className="w-full sm:w-fit [&>button]:rounded-tremor-small min-w-full"
+                enableClear={false}
+                value={species}
+                onValueChange={handleOnChangeSpecies}
+                placeholder="Select species"
+              >
+                <SelectItem value="tomato">Tomato</SelectItem>
+                <SelectItem value="cucumber">Cucumber</SelectItem>
+                <SelectItem value="pepper">Pepper</SelectItem>
+                <SelectItem value="lettuce">Lettuce</SelectItem>
+              </Select>
+              <div className="text-right">
+                <button
+                  type="submit"
+                  className="whitespace-nowrap rounded-tremor-small bg-tremor-brand px-4 py-2.5 text-tremor-default font-medium text-tremor-brand-inverted shadow-tremor-input hover:bg-tremor-brand-emphasis dark:bg-dark-tremor-brand dark:text-dark-tremor-brand-inverted dark:shadow-dark-tremor-input dark:hover:bg-dark-tremor-brand-emphasis"
+                >
+                  Update
+                </button>
+              </div>
+            </div>
+          </div>
+          <Divider />
           <div
             id="crop-content"
             className="h-[36rem] w-[80rem] m-auto hide-grid"

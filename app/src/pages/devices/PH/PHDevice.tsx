@@ -1,111 +1,138 @@
 import React from 'react'
-// import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, LineChart, CategoryBar, Divider } from '@tremor/react'
-import { Rule } from '../../../components'
-// import { Client, SensorRquest, SensorResponse, ErrorMessage } from '../../../services'
+import { Rule as RuleComponent } from '../../../components'
+import {
+  Client,
+  SensorRquest,
+  SensorResponse,
+  Rule,
+  DeviceRules,
+  SpeciesRules,
+  ErrorMessage,
+} from '../../../services'
+import { getIntervalDates } from '../../../services/Helper'
 
 import './PHDevice.scss'
 
-// PH data
-import dataPH from '../data/ph.json'
-const deviceData = {
-  values: [] as { time: string; min: number; max: number; PH: number }[],
-  min: dataPH.min,
-  max: dataPH.max,
-  avg: dataPH.avg,
-  threshold: dataPH.threshold as { min: number; max: number },
-  interval: dataPH.interval,
-  current: dataPH.current,
-  unit: dataPH.unit,
+interface DeviceData {
+  values: { time: string; min: number; max: number; PH: number }[]
+  min: number
+  max: number
+  avg: number
+  threshold: { min: number; max: number }
+  interval: string
+  current: number
+  unit: string
+  title: string
+}
+interface RuleData {
+  ruleId: string
+  title: string
+  value: number
+  min: number
+  max: number
+  type: string
+  isEnabled: boolean
+  rule: Rule
 }
 
-deviceData.values = dataPH.data.map((item) => {
-  return {
-    time: item.time,
-    min: deviceData.threshold.min,
-    max: deviceData.threshold.max,
-    PH: item.value,
-  }
-})
+const getPHRules = async (species: string, device: string) => {
+  // if species is empty get device rules
+  // else get species default rules
+  let rules: RuleData[] = []
 
-// PH data using API
-/*const DeviceData = {
-  values: [] as { time: string; min: number; max: number; PH: number }[],
-  min: 0,
-  max: 0,
-  avg: 0,
-  threshold: { min: 0, max: 0 },
-  interval: '',
-  current: 0,
-  unit: '',
-  title: 'PH',
+  if (species === 'default') {
+    // Get rules from API
+    const response = await Client.getDeviceRules<DeviceRules | ErrorMessage>(device)
+    if ('rules_by_sensor' in response) {
+      response.rules_by_sensor?.map((sensor) => {
+        if (sensor.sensor === 'ph') {
+          rules = sensor.rules.map((rule: Rule) => {
+            return {
+              ruleId: 'ph-' + (rule.compare === 'greater' ? 'upper' : 'lower'),
+              title: rule.compare === 'greater' ? 'Upper PH threshold' : 'Lower PH threshold',
+              value: rule.bound,
+              min: 1,
+              max: 13,
+              type: rule.action.type,
+              isEnabled: rule.enabled,
+              rule: rule,
+            }
+          })
+        }
+      })
+    }
+  } else {
+    // Get default rules from API
+    const response = await Client.getDefaultRules<SpeciesRules | ErrorMessage>(species)
+    if ('rules_by_sensor' in response) {
+      response.rules_by_sensor?.map((sensor) => {
+        if (sensor.sensor === 'ph') {
+          rules = sensor.rules.map((rule: Rule) => {
+            return {
+              ruleId: 'ph-' + (rule.compare === 'greater' ? 'upper' : 'lower'),
+              title: rule.compare === 'greater' ? 'Upper PH threshold' : 'Lower PH threshold',
+              value: rule.bound,
+              min: 1,
+              max: 13,
+              type: rule.action.type,
+              isEnabled: rule.enabled,
+              rule: rule,
+            }
+          })
+        }
+      })
+    }
+  }
+
+  return rules
 }
 
-const getIntervalDates = (interval: string) => {
-  const endDate = new Date()
-  const startDate = new Date()
-
-  // interval value format is number-time e.g. 1-m, 1-h, 1-d, 1-w, 1-m, 3-m, 6-m, 1-y
-  const [value, time] = interval.split('-')
-  switch (time) {
-    case 'm':
-      startDate.setMinutes(startDate.getMinutes() - parseInt(value))
-      break
-    case 'h':
-      startDate.setHours(startDate.getHours() - parseInt(value))
-      break
-    case 'd':
-      startDate.setDate(startDate.getDate() - parseInt(value))
-      break
-    case 'w':
-      startDate.setDate(startDate.getDate() - parseInt(value) * 7)
-      break
-    case 'M':
-      startDate.setMonth(startDate.getMonth() - parseInt(value))
-      break
-    case 'y':
-      startDate.setFullYear(startDate.getFullYear() - parseInt(value))
-      break
-    default:
-      startDate.setHours(startDate.getHours() - 1)
-      break
+const getPHData = async (interval: string, device: string, rules: RuleData[]) => {
+  const DeviceData: DeviceData = {
+    values: [] as { time: string; min: number; max: number; PH: number }[],
+    min: 0,
+    max: 0,
+    avg: 0,
+    threshold: { min: 0, max: 0 },
+    interval: '',
+    current: 0,
+    unit: '',
+    title: 'PH',
   }
-
-  // return the dates in the format yyyy-mm-dd-hh mm:ss
-  return {
-    startDate: startDate.toISOString().split('.')[0],
-    endDate: endDate.toISOString().split('.')[0],
-  }
-}
-
-const getPHData = async (interval: string) => {
-  console.log('Getting PH data')
 
   const { startDate, endDate } = getIntervalDates(interval)
-  console.log('Start date:', startDate)
-  console.log('End date:', endDate)
-
   const data: SensorRquest = {
-    device_id: 'fx393',
+    device_id: device,
     sensor: 'ph',
     start_date: startDate,
     end_date: endDate,
   }
 
   const response = await Client.sensor<SensorResponse | ErrorMessage>(data)
-  console.log(response)
+
+  if ('ph' in response && response.ph?.data.length === 0) {
+    console.error('No data available')
+    return DeviceData
+  }
 
   if ('error' in response) {
     console.error(response.error)
-    return
+    return DeviceData
   }
 
-  DeviceData.min = response.ph?.min || 0
-  DeviceData.max = response.ph?.max || 0
-  DeviceData.avg = response.ph?.average || 0
-  DeviceData.threshold = { min: 5, max: 8 }
+  DeviceData.min = Math.round((response.ph?.min || 0) * 100) / 100
+  DeviceData.max = Math.round((response.ph?.max || 0) * 100) / 100
+  DeviceData.avg = Math.round((response.ph?.average || 0) * 100) / 100
   DeviceData.interval = interval
-  DeviceData.current = response.ph?.data[response.ph.data.length - 1].reading || 0
+  DeviceData.current =
+    Math.round((response.ph?.data[response.ph.data.length - 1].reading || 0) * 100) / 100
+
+  DeviceData.threshold = {
+    min: rules.find((rule) => rule.ruleId === 'ph-lower')?.value || 0,
+    max: rules.find((rule) => rule.ruleId === 'ph-upper')?.value || 0,
+  }
 
   DeviceData.values =
     response.ph?.data.map((item) => {
@@ -117,127 +144,190 @@ const getPHData = async (interval: string) => {
       }
     }) || []
 
-  console.log(DeviceData)
   return DeviceData
-}*/
+}
 
 interface PHDeviceProps {
   interval: string
+  species: string
+  device: string
 }
 
-const PHDevice: React.FC<PHDeviceProps> = ({ interval }) => {
-  console.log(interval)
-  /*const [deviceData, setDeviceData] = useState(DeviceData)
-  const [intervalValue] = useState(interval)
-  console.log(intervalValue)
+const PHDevice: React.FC<PHDeviceProps> = ({ interval, species, device }) => {
+  const [ruleData, setRules] = useState<RuleData[]>([])
+  const [data, setData] = useState<DeviceData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
-  // nake sure it's called only once
   useEffect(() => {
-    if (deviceData.values.length === 0) {
-      const fetchData = async () => {
-        const data = await getPHData(intervalValue)
-        if (data) {
-          setDeviceData(data)
-        }
+    const fetchData = async () => {
+      if (!interval || !species || !device) {
+        setData(null)
+        setLoading(false)
+        setError('Please select interval, species and device to view PH data')
+        return
       }
-      fetchData()
+      try {
+        const rule = await getPHRules(species, device)
+        setRules(rule)
+
+        const ph = await getPHData(interval, device, rule)
+        if (!ph || ph.values.length === 0) {
+          setError('No data available')
+          setData(null)
+        } else {
+          setError('')
+          setData(ph)
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error)
+        setError('Error fetching data')
+        setData(null)
+      } finally {
+        setLoading(false)
+      }
     }
-  }, [deviceData, intervalValue])*/
+
+    fetchData()
+  }, [interval, species, device])
+
+  const handleRuleChange = (rule: { ruleId: string; value: number }) => {
+    const newRules = ruleData.map((item) => {
+      if (item.ruleId === rule.ruleId) {
+        return { ...item, value: rule.value }
+      }
+      return item
+    })
+
+    if (data) {
+      data.threshold = {
+        min: newRules.find((rule) => rule.ruleId === 'ph-lower')?.value || 0,
+        max: newRules.find((rule) => rule.ruleId === 'ph-upper')?.value || 0,
+      }
+
+      data.values = data.values.map((item) => {
+        return {
+          ...item,
+          min: data.threshold.min,
+          max: data.threshold.max,
+        }
+      })
+
+      setData(data)
+    }
+
+    setRules(newRules)
+  }
+
+  if (loading) return <div>Loading...</div>
+  if (error) return <div>{error}</div>
 
   return (
-    <div id="ph">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Card className="rounded-tremor-small p-2 col-span-2">
-          <div className="border-b border-tremor-border px-4 py-2 dark:border-dark-tremor-border">
-            <h3 className="text-tremor-default font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong">
-              PH Level
-            </h3>
+    <div>
+      {data ? (
+        <div id="ph">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Card className="rounded-tremor-small p-2 col-span-2">
+              <div className="border-b border-tremor-border px-4 py-2 dark:border-dark-tremor-border">
+                <h3 className="text-tremor-default font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong">
+                  PH Level
+                </h3>
+              </div>
+              <LineChart
+                className="h-60 px-2"
+                data={data.values}
+                index="time"
+                showXAxis={false}
+                categories={['PH', 'min', 'max']}
+                colors={['emerald', 'red', 'red']}
+                minValue={1}
+                maxValue={14}
+              />
+            </Card>
+            <Card className="h-36 rounded-tremor-small p-2">
+              <p className="text-tremor-default font-bold text-tremor-content dark:text-dark-tremor-content text-center py-4">
+                <span>
+                  Current PH {data.current} {data.unit}
+                </span>
+              </p>
+              <CategoryBar
+                values={[
+                  1,
+                  data.threshold.min - 1,
+                  data.threshold.max - data.threshold.min,
+                  14 - data.threshold.max - 1,
+                  1,
+                ]}
+                colors={['slate', 'rose', 'emerald', 'rose', 'slate']}
+                markerValue={data.current}
+                className="px-4"
+              />
+            </Card>
+            <div className="h-36 p-0 gap-4 grid grid-cols-1 sm:grid-cols-3">
+              <Card>
+                <div className="flex items-center justify-center">
+                  <h4 className="text-tremor-default text-tremor-content dark:text-dark-tremor-content">
+                    Max
+                  </h4>
+                </div>
+                <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong font-semibold text-center">
+                  {data.max} {data.unit}
+                </p>
+              </Card>
+              <Card>
+                <div className="flex items-center justify-center">
+                  <h4 className="text-tremor-default text-tremor-content dark:text-dark-tremor-content">
+                    Min
+                  </h4>
+                </div>
+                <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong font-semibold text-center">
+                  {data.min} {data.unit}
+                </p>
+              </Card>
+              <Card>
+                <div className="flex items-center justify-center">
+                  <h4 className="text-tremor-default text-tremor-content dark:text-dark-tremor-content">
+                    Avg
+                  </h4>
+                </div>
+                <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong font-semibold text-center">
+                  {data.avg} {data.unit}
+                </p>
+              </Card>
+            </div>
           </div>
-          <LineChart
-            className="h-60 px-2"
-            data={deviceData.values}
-            index="time"
-            categories={['PH', 'min', 'max']}
-            colors={['emerald', 'red', 'red']}
-            xAxisLabel={deviceData.interval}
-            minValue={1}
-            maxValue={14}
-          />
-        </Card>
-        <Card className="h-36 rounded-tremor-small p-2">
-          <p className="text-tremor-default font-bold text-tremor-content dark:text-dark-tremor-content text-center py-4">
-            <span>
-              Current PH {deviceData.current} {deviceData.unit}
-            </span>
-          </p>
-          <CategoryBar
-            values={[
-              deviceData.threshold.min,
-              deviceData.threshold.max - deviceData.threshold.min,
-              14 - deviceData.threshold.max,
-            ]}
-            colors={['rose', 'emerald', 'rose']}
-            markerValue={deviceData.current}
-          />
-        </Card>
-        <div className="h-36 p-0 gap-4 grid grid-cols-1 sm:grid-cols-3">
-          <Card>
-            <div className="flex items-center justify-center">
-              <h4 className="text-tremor-default text-tremor-content dark:text-dark-tremor-content">
-                Max
-              </h4>
-            </div>
-            <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong font-semibold text-center">
-              {deviceData.max} {deviceData.unit}
-            </p>
-          </Card>
-          <Card>
-            <div className="flex items-center justify-center">
-              <h4 className="text-tremor-default text-tremor-content dark:text-dark-tremor-content">
-                Min
-              </h4>
-            </div>
-            <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong font-semibold text-center">
-              {deviceData.min} {deviceData.unit}
-            </p>
-          </Card>
-          <Card>
-            <div className="flex items-center justify-center">
-              <h4 className="text-tremor-default text-tremor-content dark:text-dark-tremor-content">
-                Avg
-              </h4>
-            </div>
-            <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong font-semibold text-center">
-              {deviceData.avg} {deviceData.unit}
-            </p>
-          </Card>
+          <Divider className="my-10">Settings</Divider>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {ruleData.map((rule) => (
+              <RuleComponent
+                key={rule.ruleId}
+                device={device}
+                sensor="ph"
+                ruleData={rule.rule}
+                ruleId={rule.ruleId}
+                title={rule.title}
+                ruleValue={rule.value}
+                step={0.1}
+                maxValue={
+                  rule.ruleId === 'ph-lower'
+                    ? Math.round((data.threshold.max - 0.1) * 100) / 100
+                    : 13
+                }
+                minValue={
+                  rule.ruleId === 'ph-upper'
+                    ? Math.round((data.threshold.min + 0.1) * 100) / 100
+                    : 1
+                }
+                type={rule.type}
+                isEnabled={rule.isEnabled}
+                onValueChange={(value) => handleRuleChange({ ruleId: rule.ruleId, value })}
+              />
+            ))}
+          </div>
         </div>
-      </div>
-      <Divider className="my-10">Settings</Divider>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Rule
-          ruleId="ph-1"
-          title="Upper PH threshold"
-          recomended={10}
-          description="Lorem ipsum dolor sit amet, consetetur sadipscing elitr."
-          ruleValue={9}
-          maxValue={14}
-          minValue={1}
-          type="Automatic"
-          isEnabled={true}
-        />
-        <Rule
-          ruleId="ph-2"
-          title="Lowe PH threshold"
-          recomended={3}
-          description="Lorem ipsum dolor sit amet, consetetur sadipscing elitr."
-          ruleValue={5}
-          maxValue={14}
-          minValue={1}
-          type="Manual"
-          isEnabled={false}
-        />
-      </div>
+      ) : (
+        <div>No data available</div>
+      )}
     </div>
   )
 }

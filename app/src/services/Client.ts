@@ -4,10 +4,14 @@ import {
   LoginRequest,
   LoginResponse,
   ErrorMessage,
+  Message,
   RegisterRequest,
   RegisterResponse,
+  User,
   SensorRquest,
   SensorResponse,
+  SpeciesRules,
+  DeviceRules,
 } from './DataTypes'
 
 apiFacade.interceptors.request.use((config) => {
@@ -49,6 +53,14 @@ const Client = {
     >
   },
 
+  user: async <T>() => {
+    return (await apiFacade.get<T>('users/me')) as unknown as Promise<User | ErrorMessage>
+  },
+
+  updateUser: async <T>(data: User) => {
+    return (await apiFacade.put<T>('users/update', data)) as unknown as Promise<User | ErrorMessage>
+  },
+
   sensor: async <T>(data: SensorRquest) => {
     return (await apiFacade.get<T>(
       'sensors/' +
@@ -60,6 +72,36 @@ const Client = {
         '&end_date=' +
         data.end_date
     )) as unknown as Promise<SensorResponse | ErrorMessage>
+  },
+
+  getDefaultRules: async <T>(species: string) => {
+    return (await apiFacade.get<T>('rules/default/' + '?species=' + species)) as unknown as Promise<
+      SpeciesRules | ErrorMessage
+    >
+  },
+
+  getDeviceRules: async <T>(device_id: string) => {
+    return (await apiFacade.get<T>(
+      'rules/device/' + '?device_id=' + device_id
+    )) as unknown as Promise<DeviceRules | ErrorMessage>
+  },
+
+  putDeviceRules: async <T>(rules: DeviceRules) => {
+    return (await apiFacade.put<T>('rules/device/', rules)) as unknown as Promise<
+      Message | ErrorMessage
+    >
+  },
+
+  gerDevices: async <T>() => {
+    return (await apiFacade.get<T>('rules/devices')) as unknown as Promise<
+      { devices: string[] } | ErrorMessage
+    >
+  },
+
+  getSpecies: async <T>() => {
+    return (await apiFacade.get<T>('rules/species')) as unknown as Promise<
+      { species: string[] } | ErrorMessage
+    >
   },
 }
 

@@ -13,31 +13,78 @@ import {
   TabPanels,
 } from '@tremor/react'
 
+import { Client, ErrorMessage } from '../../services'
+
 import './Devices.scss'
 import PHDevice from './PH/PHDevice'
 import ECDevice from './EC/ECDevice'
 import TemperatureDevice from './Temperature/TemperatureDevice'
 import HumidityDevice from './Humidity/HumidityDevice'
 import LightDevice from './Light/LightDevice'
-import WaterDevice from './Water/WaterDevice'
+import FloaterDevice from './Water/FloaterDevice'
 
 const Devices = () => {
-  const [interval, setInterval] = useState('7-d')
+  const [interval, setInterval] = useState('30-d')
+  const [species, setSpecies] = useState<{ id: string; name: string }[]>([])
+  const [selectedSpecies, setSelectedSpecies] = useState('')
+  const [devices, setDevices] = useState<{ id: string; name: string }[]>([
+    { id: 'fx393', name: 'fx393' },
+  ])
+  const [device, setDevice] = useState('')
 
   useEffect(() => {
-    if (interval === '') {
-      // Set only if no interval is set
-      setInterval('7-d')
+    const fetchData = async () => {
+      try {
+        const speciesRes: { species: string[] } | ErrorMessage = await Client.getSpecies<
+          { species: string[] } | ErrorMessage
+        >()
+        if ('species' in speciesRes && Array.isArray(speciesRes.species)) {
+          const speciesList = speciesRes.species.map((species) => {
+            return {
+              id: species,
+              name: species,
+            }
+          })
+          // add default species
+          speciesList.unshift({ id: 'default', name: 'Default' })
+          setSpecies(speciesList)
+        }
+
+        const devicesRes: { devices: string[] } | ErrorMessage = await Client.gerDevices<
+          { devices: string[] } | ErrorMessage
+        >()
+        if ('devices' in devicesRes && Array.isArray(devicesRes.devices)) {
+          const devicesList = devicesRes.devices.map((device) => {
+            return {
+              id: device,
+              name: device,
+            }
+          })
+          setDevices(devicesList)
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error)
+      }
     }
-  }, [interval])
+
+    fetchData()
+  }, [])
+
+  //handle device change
+  const handleOnChangeDevice = (value: string) => {
+    setDevice(value)
+    setSelectedSpecies('default')
+  }
+
+  //handle species change
+  const handleOnChangeSpecies = (value: string) => {
+    setSelectedSpecies(value)
+  }
 
   //handle interval change
   const handleOnChangeInterval = (value: string) => {
-    console.log('Selected interval:', value)
     setInterval(value)
   }
-
-  console.log('Current interval state:', interval)
 
   // Detect the current tab
   const location = window.location
@@ -78,20 +125,54 @@ const Devices = () => {
             <h3 className="text-tremor-title font-semibold text-tremor-content-strong dark:text-dark-tremor-content-strong">
               Devices
             </h3>
-            <div className="mt-4 sm:mt-0 sm:flex sm:items-center sm:space-x-2 w-1/4">
-              <Select
-                className="w-full sm:w-fit [&>button]:rounded-tremor-small min-w-full"
-                enableClear={false}
-                value={interval}
-                onValueChange={handleOnChangeInterval}
-              >
-                <SelectItem value="30-m">Last 30 minutes</SelectItem>
-                <SelectItem value="60-m">Last 60 minutes</SelectItem>
-                <SelectItem value="12-h">Last 12 hours</SelectItem>
-                <SelectItem value="24-h">Last 24 hours</SelectItem>
-                <SelectItem value="7-d">Last 7 days</SelectItem>
-                <SelectItem value="30-d">Last 30 days</SelectItem>
-              </Select>
+            <div className="flex justify-end w-3/4 space-x-4 items-center">
+              <div className="sm:mt-0 sm:flex sm:items-center w-full space-x-2">
+                <Select
+                  className="w-full [&>button]:rounded-tremor-small"
+                  enableClear={false}
+                  value={device}
+                  onValueChange={handleOnChangeDevice}
+                  placeholder="Select device"
+                >
+                  {devices.map((device) => (
+                    <SelectItem key={device.id} value={device.id}>
+                      {device.name}
+                    </SelectItem>
+                  ))}
+                </Select>
+              </div>
+              <div className="sm:mt-0 sm:flex sm:items-center w-full space-x-2">
+                <Select
+                  className="w-full [&>button]:rounded-tremor-small"
+                  enableClear={false}
+                  value={selectedSpecies}
+                  onValueChange={handleOnChangeSpecies}
+                  placeholder="Select species"
+                >
+                  {species.map((species) => (
+                    <SelectItem key={species.id} value={species.id}>
+                      {species.name}
+                    </SelectItem>
+                  ))}
+                </Select>
+              </div>
+              <div className="sm:mt-0 sm:flex sm:items-center w-full space-x-2">
+                <Select
+                  className="w-full [&>button]:rounded-tremor-small"
+                  enableClear={false}
+                  value={interval}
+                  onValueChange={handleOnChangeInterval}
+                  placeholder="Select interval"
+                >
+                  <SelectItem value="30-m">Last 30 minutes</SelectItem>
+                  <SelectItem value="60-m">Last 60 minutes</SelectItem>
+                  <SelectItem value="12-h">Last 12 hours</SelectItem>
+                  <SelectItem value="24-h">Last 24 hours</SelectItem>
+                  <SelectItem value="3-d">Last 3 days</SelectItem>
+                  <SelectItem value="7-d">Last 7 days</SelectItem>
+                  <SelectItem value="30-d">Last 30 days</SelectItem>
+                </Select>
+              </div>
             </div>
           </div>
         </header>
@@ -107,20 +188,21 @@ const Devices = () => {
             </TabList>
             <TabPanels>
               <TabPanel className="mt-4">
-                <PHDevice interval={interval} />
+                <PHDevice interval={interval} species={selectedSpecies} device={device} />
               </TabPanel>
               <TabPanel className="mt-4">
-                <ECDevice />
+                <ECDevice interval={interval} species={selectedSpecies} device={device} />
               </TabPanel>
               <TabPanel className="mt-4">
-                <TemperatureDevice />
+                <TemperatureDevice interval={interval} species={selectedSpecies} device={device} />
               </TabPanel>
               <TabPanel className="mt-4">
-                <HumidityDevice />
+                <HumidityDevice interval={interval} species={selectedSpecies} device={device} />
               </TabPanel>
               <TabPanel className="mt-4">
-                <WaterDevice />
-                <LightDevice />
+                <FloaterDevice interval={interval} device={device} />
+                <div className="mt-4"></div>
+                <LightDevice species={selectedSpecies} device={device} />
               </TabPanel>
             </TabPanels>
           </TabGroup>

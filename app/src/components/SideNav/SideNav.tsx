@@ -1,6 +1,6 @@
 import React from 'react'
 import { useState } from 'react'
-import { Card, List, ListItem, Icon, Title, Button } from '@tremor/react'
+import { Card, List, ListItem, Icon, Button } from '@tremor/react'
 import { Link, useLocation } from 'react-router-dom'
 import {
   RiMenuFoldLine,
@@ -11,6 +11,7 @@ import {
   RiStarLine,
   RiCpuLine,
 } from '@remixicon/react'
+import logo from '../../assets/logo.png'
 
 import './SideNav.scss'
 
@@ -60,7 +61,9 @@ const SideNav = () => {
           size="xl"
           onClick={() => handleNav()}
         />
-        <Title className="mt-4">LOGO</Title>
+        <div className="m-auto">
+          <img src={logo} alt="logo" className="h-[65px]" />
+        </div>
       </div>
       <Card
         className={

@@ -1,34 +1,57 @@
 import React from 'react'
-import { useState } from 'react'
-import { Button, Card, NumberInput, Switch, Select, SelectItem, Divider } from '@tremor/react'
-
+import { useState, useEffect } from 'react'
+import {
+  Button,
+  Card,
+  NumberInput,
+  Switch,
+  Select,
+  SelectItem,
+  Divider,
+  Callout,
+} from '@tremor/react'
+import { Client, Rule as RuleData, DeviceRules } from '../../services'
+import { RiCheckboxCircleLine } from '@remixicon/react'
 import './Rule.scss'
 
 const Rule = ({
   ruleId,
+  device,
+  sensor,
+  ruleData,
   title,
-  recomended,
-  description,
   ruleValue,
+  step,
   maxValue,
   minValue,
   type,
   isEnabled,
+  onValueChange,
 }: {
   ruleId: string
+  device: string
+  sensor: string
+  ruleData: RuleData
   title: string
-  recomended: number | null
-  description: string
   ruleValue: number
+  step: number
   maxValue: number
   minValue: number
   type: string
   isEnabled: boolean
+  onValueChange: (value: number) => void
 }) => {
   const [isEnabledState, setIsEnabledState] = useState(isEnabled)
   const [ruleValueState, setRuleValueState] = useState(ruleValue)
   const [ruleType, setRuleType] = useState(type)
   const [error, setError] = useState(false)
+  const [updated, setUpdated] = useState('')
+
+  useEffect(() => {
+    setIsEnabledState(isEnabled)
+    setRuleValueState(ruleValue)
+    setRuleType(type)
+  }, [isEnabled, ruleValue, type])
 
   const handleOnChange = (value: number) => {
     if (!value || value < minValue || value > maxValue) {
@@ -37,24 +60,85 @@ const Rule = ({
       setError(false)
     }
     setRuleValueState(value)
+    setIsEnabledState(isEnabledState)
+    onValueChange(value)
   }
 
   const handleOnChangeType = (value: string) => {
     setRuleType(value)
   }
 
-  const handleSwitch = () => {
-    setIsEnabledState(!isEnabledState)
+  const handleSwitch = async () => {
+    const isEnabled = !isEnabledState
+    setIsEnabledState(isEnabled)
+    const rule: RuleData = {
+      bound: ruleValueState,
+      compare: ruleData.compare,
+      time: ruleData.time,
+      enabled: isEnabled,
+      action: {
+        type: ruleType,
+        dest: ruleData.action.dest,
+      },
+    }
+
+    const deviceRules: DeviceRules = {
+      device: device,
+      rules_by_sensor: [
+        {
+          sensor: sensor,
+          rules: [rule],
+        },
+      ],
+    }
+
+    const response = await Client.putDeviceRules(deviceRules)
+    if ('message' in response) {
+      setUpdated(isEnabled ? 'Rule enabled' : 'Rule disabled')
+      setTimeout(() => {
+        setUpdated('')
+      }, 2000)
+    }
   }
 
-  const handleSave = () => {
-    if (!error) {
-      console.log('Saved')
+  const handleSave = async () => {
+    const rule: RuleData = {
+      bound: ruleValueState,
+      compare: ruleData.compare,
+      time: ruleData.time,
+      enabled: isEnabledState,
+      action: {
+        type: ruleType,
+        dest: ruleData.action.dest,
+      },
+    }
+
+    const deviceRules: DeviceRules = {
+      device: device,
+      rules_by_sensor: [
+        {
+          sensor: sensor,
+          rules: [rule],
+        },
+      ],
+    }
+
+    const response = await Client.putDeviceRules(deviceRules)
+    if ('message' in response) {
+      setUpdated(response.message)
+      setTimeout(() => {
+        setUpdated('')
+      }, 2000)
     }
   }
 
   return (
     <div className="device-rule">
+      {updated != '' ? (
+        <Callout className="mt-4" title="Success" icon={RiCheckboxCircleLine} color="teal">
+          {updated}
+        </Callout>
+      ) : null}
       <Card className="p-0">
         <div className="border-b border-tremor-border bg-tremor-background-muted px-4 py-3 dark:border-dark-tremor-border dark:bg-dark-tremor-background-muted flex items-start justify-between items-center">
           <label
@@ -75,10 +159,14 @@ const Rule = ({
           <>
             <div className="flex items-start justify-between space-x-10 p-4">
               <p className="text-tremor-default leading-6 text-tremor-content dark:text-dark-tremor-content">
-                {description}
-                {recomended ? (
+                {maxValue ? (
                   <>
-                    <br></br>Recomended value is {recomended}
+                    Max value is <b>{maxValue}</b>
+                  </>
+                ) : null}
+                {minValue ? (
+                  <>
+                    <br></br>Min value is <b>{minValue}</b>
                   </>
                 ) : null}
               </p>
@@ -88,8 +176,9 @@ const Rule = ({
               <div className="h-10">
                 <NumberInput
                   error={error}
-                  errorMessage={'Value must be between' + minValue + ' and ' + maxValue}
+                  errorMessage={'Value must be between ' + minValue + ' and ' + maxValue}
                   value={ruleValueState}
+                  step={step}
                   max={maxValue}
                   min={minValue}
                   disabled={!isEnabledState}
@@ -103,8 +192,8 @@ const Rule = ({
                   placeholder="Type"
                   onValueChange={handleOnChangeType}
                 >
-                  <SelectItem value="Automatic">Automatic</SelectItem>
-                  <SelectItem value="Manual">Manual</SelectItem>
+                  <SelectItem value="mqtt">Automatic</SelectItem>
+                  <SelectItem value="alert">Manual</SelectItem>
                 </Select>
               </div>
             </div>
