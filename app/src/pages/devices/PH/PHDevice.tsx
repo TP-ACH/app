@@ -7,6 +7,7 @@ import {
   SensorRquest,
   SensorResponse,
   Rule,
+  DeviceRules,
   SpeciesRules,
   ErrorMessage,
 } from '../../../services'
@@ -43,9 +44,9 @@ const getPHRules = async (species: string, device: string) => {
 
   if (species === 'default') {
     // Get rules from API
-    const response = await Client.getDeviceRules<SpeciesRules | ErrorMessage>(device)
+    const response = await Client.getDeviceRules<DeviceRules | ErrorMessage>(device)
     if ('rules_by_sensor' in response) {
-      response.rules_by_sensor.map((sensor) => {
+      response.rules_by_sensor?.map((sensor) => {
         if (sensor.sensor === 'ph') {
           rules = sensor.rules.map((rule: Rule) => {
             return {
@@ -66,7 +67,7 @@ const getPHRules = async (species: string, device: string) => {
     // Get default rules from API
     const response = await Client.getDefaultRules<SpeciesRules | ErrorMessage>(species)
     if ('rules_by_sensor' in response) {
-      response.rules_by_sensor.map((sensor) => {
+      response.rules_by_sensor?.map((sensor) => {
         if (sensor.sensor === 'ph') {
           rules = sensor.rules.map((rule: Rule) => {
             return {
@@ -162,6 +163,12 @@ const PHDevice: React.FC<PHDeviceProps> = ({ interval, species, device }) => {
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!interval || !species || !device) {
+        setData(null)
+        setLoading(false)
+        setError('Please select interval, species and device')
+        return
+      }
       try {
         const rule = await getPHRules(species, device)
         setRules(rule)

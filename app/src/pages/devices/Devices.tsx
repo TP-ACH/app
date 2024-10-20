@@ -21,7 +21,7 @@ import ECDevice from './EC/ECDevice'
 import TemperatureDevice from './Temperature/TemperatureDevice'
 import HumidityDevice from './Humidity/HumidityDevice'
 import LightDevice from './Light/LightDevice'
-import WaterDevice from './Water/WaterDevice'
+import FloaterDevice from './Water/FloaterDevice'
 
 const Devices = () => {
   const [interval, setInterval] = useState('30-d')
@@ -200,7 +200,7 @@ const Devices = () => {
                 <HumidityDevice interval={interval} species={selectedSpecies} device={device} />
               </TabPanel>
               <TabPanel className="mt-4">
-                <WaterDevice />
+                <FloaterDevice interval={interval} device={device} />
                 <LightDevice />
               </TabPanel>
             </TabPanels>

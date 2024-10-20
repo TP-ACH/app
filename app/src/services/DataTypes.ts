@@ -57,6 +57,7 @@ export interface SensorResponse {
   ec: Sensor | null
   temperature: Sensor | null
   humidity: Sensor | null
+  floater: Sensor | null
 }
 export interface Rule {
   bound: number
@@ -72,20 +73,20 @@ export interface LightHours {
   start: string
   end: string
 }
+export interface SensorRule {
+  sensor: string
+  rules: Rule[]
+}
+
 export interface DeviceRules {
   device: string
-  rules_by_sensor: {
-    sensor: string
-    rules: Rule[]
-  }[]
+  species?: string
+  rules_by_sensor?: SensorRule[]
   light_hours?: LightHours
 }
 
 export interface SpeciesRules {
   species: string
-  rules_by_sensor: {
-    sensor: string
-    rules: Rule[]
-  }[]
+  rules_by_sensor?: SensorRule[]
   light_hours?: LightHours
 }

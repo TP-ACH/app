@@ -86,13 +86,10 @@ const Client = {
     )) as unknown as Promise<DeviceRules | ErrorMessage>
   },
 
-  putDeviceRules: async <T>(device_id: string, rules: DeviceRules) => {
-    console.log('Device ID:', device_id)
-    console.log('Rules:', rules)
-    return (await apiFacade.put<T>(
-      'rules/device/' + '?device_id=' + device_id,
-      rules
-    )) as unknown as Promise<Message | ErrorMessage>
+  putDeviceRules: async <T>(rules: DeviceRules) => {
+    return (await apiFacade.put<T>('rules/device/', rules)) as unknown as Promise<
+      Message | ErrorMessage
+    >
   },
 
   gerDevices: async <T>() => {

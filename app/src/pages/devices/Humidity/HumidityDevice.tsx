@@ -45,7 +45,7 @@ const getHumidityRules = async (species: string, device: string) => {
     // Get rules from API
     const response = await Client.getDeviceRules<SpeciesRules | ErrorMessage>(device)
     if ('rules_by_sensor' in response) {
-      response.rules_by_sensor.map((sensor) => {
+      response.rules_by_sensor?.map((sensor) => {
         if (sensor.sensor === 'humidity') {
           rules = sensor.rules.map((rule: Rule) => {
             return {
@@ -69,7 +69,7 @@ const getHumidityRules = async (species: string, device: string) => {
     // Get default rules from API
     const response = await Client.getDefaultRules<SpeciesRules | ErrorMessage>(species)
     if ('rules_by_sensor' in response) {
-      response.rules_by_sensor.map((sensor) => {
+      response.rules_by_sensor?.map((sensor) => {
         if (sensor.sensor === 'humidity') {
           rules = sensor.rules.map((rule: Rule) => {
             return {
@@ -169,6 +169,12 @@ const HumidityDevice: React.FC<HumidityDeviceProps> = ({ interval, species, devi
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!interval || !species || !device) {
+        setData(null)
+        setLoading(false)
+        setError('Please select interval, species and device')
+        return
+      }
       try {
         const rule = await getHumidityRules(species, device)
         setRules(rule)

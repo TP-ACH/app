@@ -92,7 +92,7 @@ const Rule = ({
       ],
     }
 
-    const response = await Client.putDeviceRules(device, deviceRules)
+    const response = await Client.putDeviceRules(deviceRules)
     console.log(response)
     if ('message' in response) {
       setUpdated(isEnabled ? 'Rule enabled' : 'Rule disabled')
@@ -124,7 +124,7 @@ const Rule = ({
       ],
     }
 
-    const response = await Client.putDeviceRules(device, deviceRules)
+    const response = await Client.putDeviceRules(deviceRules)
     console.log(response)
     if ('message' in response) {
       setUpdated(response.message)

@@ -45,7 +45,7 @@ const getECRules = async (species: string, device: string) => {
     // Get rules from API
     const response = await Client.getDeviceRules<SpeciesRules | ErrorMessage>(device)
     if ('rules_by_sensor' in response) {
-      response.rules_by_sensor.map((sensor) => {
+      response.rules_by_sensor?.map((sensor) => {
         if (sensor.sensor === 'ec') {
           rules = sensor.rules.map((rule: Rule) => {
             return {
@@ -66,7 +66,7 @@ const getECRules = async (species: string, device: string) => {
     // Get default rules from API
     const response = await Client.getDefaultRules<SpeciesRules | ErrorMessage>(species)
     if ('rules_by_sensor' in response) {
-      response.rules_by_sensor.map((sensor) => {
+      response.rules_by_sensor?.map((sensor) => {
         if (sensor.sensor === 'ec') {
           rules = sensor.rules.map((rule: Rule) => {
             return {
@@ -164,6 +164,12 @@ const ECDevice: React.FC<ECDeviceProps> = ({ interval, species, device }) => {
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!interval || !species || !device) {
+        setData(null)
+        setLoading(false)
+        setError('Please select interval, species and device')
+        return
+      }
       try {
         const rule = await getECRules(species, device)
         setRules(rule)

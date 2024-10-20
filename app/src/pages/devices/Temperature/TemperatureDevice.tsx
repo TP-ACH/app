@@ -45,7 +45,7 @@ const getTemperatureRules = async (species: string, device: string) => {
     // Get rules from API
     const response = await Client.getDeviceRules<SpeciesRules | ErrorMessage>(device)
     if ('rules_by_sensor' in response) {
-      response.rules_by_sensor.map((sensor) => {
+      response.rules_by_sensor?.map((sensor) => {
         if (sensor.sensor === 'temperature') {
           rules = sensor.rules.map((rule: Rule) => {
             return {
@@ -69,7 +69,7 @@ const getTemperatureRules = async (species: string, device: string) => {
     // Get default rules from API
     const response = await Client.getDefaultRules<SpeciesRules | ErrorMessage>(species)
     if ('rules_by_sensor' in response) {
-      response.rules_by_sensor.map((sensor) => {
+      response.rules_by_sensor?.map((sensor) => {
         if (sensor.sensor === 'temperature') {
           rules = sensor.rules.map((rule: Rule) => {
             return {
@@ -170,6 +170,12 @@ const TemperatureDevice: React.FC<TemperatureDeviceProps> = ({ interval, species
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!interval || !species || !device) {
+        setData(null)
+        setLoading(false)
+        setError('Please select interval, species and device')
+        return
+      }
       try {
         const rule = await getTemperatureRules(species, device)
         setRules(rule)
