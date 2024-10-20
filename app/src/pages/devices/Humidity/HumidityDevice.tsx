@@ -172,7 +172,7 @@ const HumidityDevice: React.FC<HumidityDeviceProps> = ({ interval, species, devi
       if (!interval || !species || !device) {
         setData(null)
         setLoading(false)
-        setError('Please select interval, species and device')
+        setError('Please select interval, species and device to view humidity data')
         return
       }
       try {

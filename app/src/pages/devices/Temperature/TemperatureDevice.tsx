@@ -173,7 +173,7 @@ const TemperatureDevice: React.FC<TemperatureDeviceProps> = ({ interval, species
       if (!interval || !species || !device) {
         setData(null)
         setLoading(false)
-        setError('Please select interval, species and device')
+        setError('Please select interval, species and device to view temperature data')
         return
       }
       try {

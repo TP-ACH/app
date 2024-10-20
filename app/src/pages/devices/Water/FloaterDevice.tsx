@@ -72,7 +72,7 @@ const FloaterDevice: React.FC<FloaterDeviceProps> = ({ interval, device }) => {
       if (!interval || !device) {
         setData(null)
         setLoading(false)
-        setError('Please select interval, species and device')
+        setError('Please select interval, species and device to view floater data')
         return
       }
       try {
@@ -103,30 +103,22 @@ const FloaterDevice: React.FC<FloaterDeviceProps> = ({ interval, device }) => {
     <div>
       {data ? (
         <div id="floater">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 mb-4">
-            <Card>
-              {data.current ? (
-                <p className="text-tremor-default font-bold text-tremor-content dark:text-dark-tremor-content text-center py-4 flex flex-col justify-center	justify-items-center">
-                  <span className="text-center font-mono text-sm text-slate-500">
-                    Water tank is full
-                  </span>
-                  <Icon size="xl" icon={RiCheckboxCircleFill} />
-                </p>
-              ) : (
-                <p className="text-tremor-default font-bold text-tremor-content dark:text-dark-tremor-content text-center py-4 flex flex-col justify-center	justify-items-center">
-                  <span className="text-center font-mono text-sm text-slate-500">
-                    Water tank is empty
-                  </span>
-                  <Icon size="xl" icon={RiErrorWarningFill} color="rose" />
-                </p>
-              )}
-            </Card>
-            <Card>
-              <div className="text-center py-8">
-                <Tracker data={data.values} className="mt-2 m-auto" />
-              </div>
-            </Card>
-          </div>
+          <Card>
+            {data.current ? (
+              <p className="text-tremor-default font-bold text-tremor-content dark:text-dark-tremor-content text-center py-4 flex flex-col justify-center	justify-items-center">
+                <span className="text-center">Water tank is full</span>
+                <Icon size="xl" icon={RiCheckboxCircleFill} />
+              </p>
+            ) : (
+              <p className="text-tremor-default font-bold text-tremor-content dark:text-dark-tremor-content text-center py-4 flex flex-col justify-center	justify-items-center">
+                <span className="text-center">Water tank is empty</span>
+                <Icon size="xl" icon={RiErrorWarningFill} color="rose" />
+              </p>
+            )}
+            <div className="text-center py-4">
+              <Tracker data={data.values} className="mt-2 m-auto" />
+            </div>
+          </Card>
         </div>
       ) : (
         <div>No data available</div>

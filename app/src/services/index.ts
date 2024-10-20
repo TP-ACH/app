@@ -11,4 +11,5 @@ export type {
   Rule,
   DeviceRules,
   SpeciesRules,
+  LightHours,
 } from './DataTypes'

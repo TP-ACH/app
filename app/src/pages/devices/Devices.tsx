@@ -201,7 +201,8 @@ const Devices = () => {
               </TabPanel>
               <TabPanel className="mt-4">
                 <FloaterDevice interval={interval} device={device} />
-                <LightDevice />
+                <div className="mt-4"></div>
+                <LightDevice species={selectedSpecies} device={device} />
               </TabPanel>
             </TabPanels>
           </TabGroup>

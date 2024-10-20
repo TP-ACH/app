@@ -166,7 +166,7 @@ const PHDevice: React.FC<PHDeviceProps> = ({ interval, species, device }) => {
       if (!interval || !species || !device) {
         setData(null)
         setLoading(false)
-        setError('Please select interval, species and device')
+        setError('Please select interval, species and device to view PH data')
         return
       }
       try {

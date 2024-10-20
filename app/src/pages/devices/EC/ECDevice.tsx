@@ -167,7 +167,7 @@ const ECDevice: React.FC<ECDeviceProps> = ({ interval, species, device }) => {
       if (!interval || !species || !device) {
         setData(null)
         setLoading(false)
-        setError('Please select interval, species and device')
+        setError('Please select interval, species and device to view EC data')
         return
       }
       try {
