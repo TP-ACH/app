@@ -95,7 +95,6 @@ const getHumidityRules = async (species: string, device: string) => {
 }
 
 const getHumidityData = async (interval: string, device: string, rules: RuleData[]) => {
-  console.log('Getting Humidity data', rules)
   const DeviceData: DeviceData = {
     values: [] as { time: string; min: number; max: number; Humidity: number }[],
     min: 0,
@@ -140,7 +139,6 @@ const getHumidityData = async (interval: string, device: string, rules: RuleData
     min: rules.find((rule) => rule.ruleId === 'humidity-lower')?.value || 0,
     max: rules.find((rule) => rule.ruleId === 'humidity-upper')?.value || 0,
   }
-  console.log('Threshold:', DeviceData.threshold)
 
   DeviceData.values =
     response.humidity?.data.map((item) => {

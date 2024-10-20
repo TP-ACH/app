@@ -9,7 +9,6 @@ import './Account.scss'
 const getUserData = async () => {
   try {
     const data = await Client.user()
-    console.log(data)
     return data
   } catch (error) {
     console.error('Error fetching data:', error)
@@ -78,7 +77,6 @@ const Account = () => {
       }
 
       const res: User | ErrorMessage = await Client.updateUser(data)
-      console.log(res)
       if ('first_name' in res) {
         setUserData(res)
         setResponse('Information updated')

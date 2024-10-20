@@ -90,7 +90,6 @@ const getPHRules = async (species: string, device: string) => {
 }
 
 const getPHData = async (interval: string, device: string, rules: RuleData[]) => {
-  console.log('Getting PH data', rules)
   const DeviceData: DeviceData = {
     values: [] as { time: string; min: number; max: number; PH: number }[],
     min: 0,
@@ -134,7 +133,6 @@ const getPHData = async (interval: string, device: string, rules: RuleData[]) =>
     min: rules.find((rule) => rule.ruleId === 'ph-lower')?.value || 0,
     max: rules.find((rule) => rule.ruleId === 'ph-upper')?.value || 0,
   }
-  console.log('Threshold:', DeviceData.threshold)
 
   DeviceData.values =
     response.ph?.data.map((item) => {

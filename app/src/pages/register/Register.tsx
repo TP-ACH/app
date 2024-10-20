@@ -70,10 +70,7 @@ const Register = () => {
         access_token: state.accessToken,
       }
 
-      console.log(data)
-
       const res: RegisterResponse | ErrorMessage = await Client.register(data)
-      console.log(res)
       if ('ok' in res) {
         setResponse('Successfully registered!')
         setTimeout(() => {

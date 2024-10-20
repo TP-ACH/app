@@ -93,7 +93,6 @@ const Rule = ({
     }
 
     const response = await Client.putDeviceRules(deviceRules)
-    console.log(response)
     if ('message' in response) {
       setUpdated(isEnabled ? 'Rule enabled' : 'Rule disabled')
       setTimeout(() => {
@@ -125,7 +124,6 @@ const Rule = ({
     }
 
     const response = await Client.putDeviceRules(deviceRules)
-    console.log(response)
     if ('message' in response) {
       setUpdated(response.message)
       setTimeout(() => {

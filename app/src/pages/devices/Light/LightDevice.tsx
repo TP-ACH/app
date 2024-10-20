@@ -82,7 +82,6 @@ const LightDevice: React.FC<LightDeviceProps> = ({ species, device }) => {
           setError('')
           setRules(rule)
           setLightRule({ start: rule.start, end: rule.end })
-          console.log('rule:', rule)
           // change the color of the tracker based on the rule
           // first get the start and end time of the rule
           let paint = false
@@ -161,7 +160,6 @@ const LightDevice: React.FC<LightDeviceProps> = ({ species, device }) => {
     }
 
     const response = await Client.putDeviceRules(deviceRules)
-    console.log(response)
     if ('message' in response) {
       setUpdated(response.message)
       setTimeout(() => {

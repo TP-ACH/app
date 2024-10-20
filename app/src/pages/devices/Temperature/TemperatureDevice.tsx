@@ -95,7 +95,6 @@ const getTemperatureRules = async (species: string, device: string) => {
 }
 
 const getTemperatureData = async (interval: string, device: string, rules: RuleData[]) => {
-  console.log('Getting Temperature data', rules)
   const DeviceData: DeviceData = {
     values: [] as { time: string; min: number; max: number; Temperature: number }[],
     min: 0,
@@ -141,7 +140,6 @@ const getTemperatureData = async (interval: string, device: string, rules: RuleD
     min: rules.find((rule) => rule.ruleId === 'temperature-lower')?.value || 0,
     max: rules.find((rule) => rule.ruleId === 'temperature-upper')?.value || 0,
   }
-  console.log('Threshold:', DeviceData.threshold)
 
   DeviceData.values =
     response.temperature?.data.map((item) => {

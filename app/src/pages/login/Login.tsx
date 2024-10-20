@@ -45,7 +45,6 @@ const Login = () => {
       }
 
       const res: LoginResponse | ErrorMessage = await Client.login(data)
-      console.log(res)
       if ('access_token' in res) {
         setResponse('Welcome back!')
         // save token to local storage

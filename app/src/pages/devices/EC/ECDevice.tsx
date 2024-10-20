@@ -89,7 +89,6 @@ const getECRules = async (species: string, device: string) => {
 }
 
 const getECData = async (interval: string, device: string, rules: RuleData[]) => {
-  console.log('Getting EC data', rules)
   const DeviceData: DeviceData = {
     values: [] as { time: string; min: number; max: number; EC: number }[],
     min: 0,
@@ -133,7 +132,6 @@ const getECData = async (interval: string, device: string, rules: RuleData[]) =>
     min: rules.find((rule) => rule.ruleId === 'ec-lower')?.value || 0,
     max: rules.find((rule) => rule.ruleId === 'ec-upper')?.value || 0,
   }
-  console.log('Threshold:', DeviceData.threshold)
 
   DeviceData.values =
     response.ec?.data.map((item) => {
@@ -144,8 +142,6 @@ const getECData = async (interval: string, device: string, rules: RuleData[]) =>
         EC: item.reading,
       }
     }) || []
-
-  console.log('TEST', Math.round((DeviceData.threshold.min + 0.01) * 100) / 100)
 
   return DeviceData
 }

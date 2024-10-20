@@ -10,9 +10,8 @@ import crop from '../../assets/crop.png'
 const Crop = () => {
   const [species, setSpecies] = useState('')
 
-  //handle species change
+  //handle species change TODO
   const handleOnChangeSpecies = (value: string) => {
-    console.log('Selected species:', value)
     setSpecies(value)
   }
 
