@@ -1,5 +1,5 @@
 import React from 'react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { SideNav } from '../../components'
 import {
   Divider,
@@ -13,6 +13,8 @@ import {
   TabPanels,
 } from '@tremor/react'
 
+import { Client, ErrorMessage } from '../../services'
+
 import './Devices.scss'
 import PHDevice from './PH/PHDevice'
 import ECDevice from './EC/ECDevice'
@@ -22,36 +24,61 @@ import LightDevice from './Light/LightDevice'
 import WaterDevice from './Water/WaterDevice'
 
 const Devices = () => {
-  // Mock devices
-  // TODO: API call to get devices
-  const devices = [
+  const [interval, setInterval] = useState('30-d')
+  const [species, setSpecies] = useState<{ id: string; name: string }[]>([])
+  const [selectedSpecies, setSelectedSpecies] = useState('')
+  const [devices, setDevices] = useState<{ id: string; name: string }[]>([
     { id: 'fx393', name: 'fx393' },
-    { id: '2', name: 'Device 2' },
-    { id: '3', name: 'Device 3' },
-  ]
+  ])
+  const [device, setDevice] = useState('')
 
-  // Mock species
-  // TODO: API call to get species
-  const speciesList = [
-    { id: 'custom', name: 'My Rules' },
-    { id: 'Lechuga', name: 'Lechuga' },
-    { id: 'cucumber', name: 'Cucumber' },
-    { id: 'pepper', name: 'Pepper' },
-    { id: 'lettuce', name: 'Lettuce' },
-  ]
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const speciesRes: { species: string[] } | ErrorMessage = await Client.getSpecies<
+          { species: string[] } | ErrorMessage
+        >()
+        if ('species' in speciesRes && Array.isArray(speciesRes.species)) {
+          const speciesList = speciesRes.species.map((species) => {
+            return {
+              id: species,
+              name: species,
+            }
+          })
+          // add default species
+          speciesList.unshift({ id: 'default', name: 'Default' })
+          setSpecies(speciesList)
+        }
 
-  const [interval, setInterval] = useState('7-d')
-  const [species, setSpecies] = useState(speciesList[0].id)
-  const [device, setDevice] = useState(devices[0].id)
+        const devicesRes: { devices: string[] } | ErrorMessage = await Client.gerDevices<
+          { devices: string[] } | ErrorMessage
+        >()
+        if ('devices' in devicesRes && Array.isArray(devicesRes.devices)) {
+          const devicesList = devicesRes.devices.map((device) => {
+            return {
+              id: device,
+              name: device,
+            }
+          })
+          setDevices(devicesList)
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error)
+      }
+    }
+
+    fetchData()
+  }, [])
 
   //handle device change
   const handleOnChangeDevice = (value: string) => {
     setDevice(value)
+    setSelectedSpecies('default')
   }
 
   //handle species change
   const handleOnChangeSpecies = (value: string) => {
-    setSpecies(value)
+    setSelectedSpecies(value)
   }
 
   //handle interval change
@@ -118,11 +145,11 @@ const Devices = () => {
                 <Select
                   className="w-full [&>button]:rounded-tremor-small"
                   enableClear={false}
-                  value={species}
+                  value={selectedSpecies}
                   onValueChange={handleOnChangeSpecies}
                   placeholder="Select species"
                 >
-                  {speciesList.map((species) => (
+                  {species.map((species) => (
                     <SelectItem key={species.id} value={species.id}>
                       {species.name}
                     </SelectItem>
@@ -141,6 +168,7 @@ const Devices = () => {
                   <SelectItem value="60-m">Last 60 minutes</SelectItem>
                   <SelectItem value="12-h">Last 12 hours</SelectItem>
                   <SelectItem value="24-h">Last 24 hours</SelectItem>
+                  <SelectItem value="3-d">Last 3 days</SelectItem>
                   <SelectItem value="7-d">Last 7 days</SelectItem>
                   <SelectItem value="30-d">Last 30 days</SelectItem>
                 </Select>
@@ -160,16 +188,16 @@ const Devices = () => {
             </TabList>
             <TabPanels>
               <TabPanel className="mt-4">
-                <PHDevice interval={interval} species={species} device={device} />
+                <PHDevice interval={interval} species={selectedSpecies} device={device} />
               </TabPanel>
               <TabPanel className="mt-4">
-                <ECDevice interval={interval} species={species} device={device} />
+                <ECDevice interval={interval} species={selectedSpecies} device={device} />
               </TabPanel>
               <TabPanel className="mt-4">
-                <TemperatureDevice interval={interval} species={species} device={device} />
+                <TemperatureDevice interval={interval} species={selectedSpecies} device={device} />
               </TabPanel>
               <TabPanel className="mt-4">
-                <HumidityDevice interval={interval} species={species} device={device} />
+                <HumidityDevice interval={interval} species={selectedSpecies} device={device} />
               </TabPanel>
               <TabPanel className="mt-4">
                 <WaterDevice />

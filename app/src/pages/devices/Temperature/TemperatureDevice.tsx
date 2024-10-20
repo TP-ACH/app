@@ -41,7 +41,7 @@ const getTemperatureRules = async (species: string, device: string) => {
   // else get species default rules
   let rules: RuleData[] = []
 
-  if (species === 'custom') {
+  if (species === 'default') {
     // Get rules from API
     const response = await Client.getDeviceRules<SpeciesRules | ErrorMessage>(device)
     if ('rules_by_sensor' in response) {
@@ -240,6 +240,7 @@ const TemperatureDevice: React.FC<TemperatureDeviceProps> = ({ interval, species
                 className="h-60 px-2"
                 data={data.values}
                 index="time"
+                showXAxis={false}
                 categories={['Temperature', 'min', 'max']}
                 colors={['emerald', 'red', 'red']}
                 minValue={0}

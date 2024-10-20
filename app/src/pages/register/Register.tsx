@@ -21,7 +21,7 @@ const Register = () => {
     confirmPassword: '',
     firstName: '',
     lastName: '',
-    deviceId: '',
+    accessToken: '',
   })
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -48,8 +48,8 @@ const Register = () => {
       setPageError('Please enter your last name')
       return
     }
-    if (!state.deviceId) {
-      setPageError('Please enter your device ID')
+    if (!state.accessToken) {
+      setPageError('Please enter your access token')
       return
     }
 
@@ -67,7 +67,7 @@ const Register = () => {
           last_name: state.lastName,
           password: state.password,
         },
-        device_id: state.deviceId,
+        access_token: state.accessToken,
       }
 
       console.log(data)
@@ -161,7 +161,7 @@ const Register = () => {
                   htmlFor="confirm-password"
                   className="text-tremor-default font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong"
                 >
-                  Confirm Password
+                  Confirm password
                   <span className="text-red-500">*</span>
                 </label>
                 <div>
@@ -180,19 +180,19 @@ const Register = () => {
               </div>
               <div className="col-span-full">
                 <label
-                  htmlFor="deviceId"
+                  htmlFor="accessToken"
                   className="text-tremor-default font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong"
                 >
-                  Device ID
+                  Access token
                   <span className="text-red-500">*</span>
                 </label>
                 <TextInput
                   type="text"
-                  name="deviceId"
-                  placeholder="Device ID"
-                  errorMessage="Please enter your device ID"
+                  name="accessToken"
+                  placeholder="Access token"
+                  errorMessage="Please enter your adccess token"
                   onChange={handleChange}
-                  value={state.deviceId}
+                  value={state.accessToken}
                   className="mt-2"
                   required
                 />

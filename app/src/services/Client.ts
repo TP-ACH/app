@@ -94,6 +94,18 @@ const Client = {
       rules
     )) as unknown as Promise<Message | ErrorMessage>
   },
+
+  gerDevices: async <T>() => {
+    return (await apiFacade.get<T>('rules/devices')) as unknown as Promise<
+      { devices: string[] } | ErrorMessage
+    >
+  },
+
+  getSpecies: async <T>() => {
+    return (await apiFacade.get<T>('rules/species')) as unknown as Promise<
+      { species: string[] } | ErrorMessage
+    >
+  },
 }
 
 export default Client

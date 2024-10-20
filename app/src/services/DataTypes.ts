@@ -23,7 +23,7 @@ export interface RegisterRequest {
     last_name: string
     password: string
   }
-  device_id: string
+  access_token: string
 }
 
 export interface RegisterResponse {

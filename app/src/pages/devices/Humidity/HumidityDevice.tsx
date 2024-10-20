@@ -41,7 +41,7 @@ const getHumidityRules = async (species: string, device: string) => {
   // else get species default rules
   let rules: RuleData[] = []
 
-  if (species === 'custom') {
+  if (species === 'default') {
     // Get rules from API
     const response = await Client.getDeviceRules<SpeciesRules | ErrorMessage>(device)
     if ('rules_by_sensor' in response) {
@@ -239,6 +239,7 @@ const HumidityDevice: React.FC<HumidityDeviceProps> = ({ interval, species, devi
                 className="h-60 px-2"
                 data={data.values}
                 index="time"
+                showXAxis={false}
                 categories={['Humidity', 'min', 'max']}
                 colors={['emerald', 'red', 'red']}
                 minValue={0}
