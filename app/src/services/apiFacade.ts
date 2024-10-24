@@ -45,9 +45,14 @@ instance.interceptors.response.use(
     // Do something with response error
     if (error.response.status === 401) {
       localStorage.removeItem('token')
-      if (window.location.pathname !== '/login') {
+      if (window.location.pathname !== '/login' && window.location.pathname !== '/register') {
         window.location.href = '/login'
       }
+
+      const authError = {
+        error: 'Unauthorized',
+      }
+      return authError
     }
 
     return Promise.reject(error)
