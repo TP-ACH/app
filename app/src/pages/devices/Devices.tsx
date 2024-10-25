@@ -27,9 +27,7 @@ const Devices = () => {
   const [interval, setInterval] = useState('30-d')
   const [species, setSpecies] = useState<{ id: string; name: string }[]>([])
   const [selectedSpecies, setSelectedSpecies] = useState('')
-  const [devices, setDevices] = useState<{ id: string; name: string }[]>([
-    { id: 'fx393', name: 'fx393' },
-  ])
+  const [devices, setDevices] = useState<{ id: string; name: string }[]>([])
   const [device, setDevice] = useState('')
 
   useEffect(() => {
@@ -46,21 +44,24 @@ const Devices = () => {
             }
           })
           // add default species
-          speciesList.unshift({ id: 'default', name: 'Default' })
+          speciesList.unshift({ id: 'default', name: 'My Settings' })
           setSpecies(speciesList)
         }
 
-        const devicesRes: { devices: string[] } | ErrorMessage = await Client.gerDevices<
+        const devicesRes: string[] | ErrorMessage = await Client.gerDevices<
           { devices: string[] } | ErrorMessage
         >()
-        if ('devices' in devicesRes && Array.isArray(devicesRes.devices)) {
-          const devicesList = devicesRes.devices.map((device) => {
+        if (Array.isArray(devicesRes)) {
+          const devicesList = devicesRes.map((device) => {
             return {
               id: device,
               name: device,
             }
           })
           setDevices(devicesList)
+          if (devicesList.length > 0) {
+            setDevice(devicesList[0].id)
+          }
         }
       } catch (error) {
         console.error('Error fetching data:', error)

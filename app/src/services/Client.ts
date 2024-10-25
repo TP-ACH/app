@@ -12,6 +12,8 @@ import {
   SensorResponse,
   SpeciesRules,
   DeviceRules,
+  AlertStatus,
+  Alert,
 } from './DataTypes'
 
 apiFacade.interceptors.request.use((config) => {
@@ -93,14 +95,26 @@ const Client = {
   },
 
   gerDevices: async <T>() => {
-    return (await apiFacade.get<T>('rules/devices')) as unknown as Promise<
-      { devices: string[] } | ErrorMessage
+    return (await apiFacade.get<T>('sensors/devices')) as unknown as Promise<
+      string[] | ErrorMessage
     >
   },
 
   getSpecies: async <T>() => {
     return (await apiFacade.get<T>('rules/species')) as unknown as Promise<
       { species: string[] } | ErrorMessage
+    >
+  },
+
+  getAlerts: async <T>(device_id: string, status: AlertStatus) => {
+    return (await apiFacade.get<T>(
+      'alerts' + '?device_id=' + device_id + '&status=' + status
+    )) as unknown as Promise<Alert[] | ErrorMessage>
+  },
+
+  putAlerts: async <T>(id: string, status: AlertStatus) => {
+    return (await apiFacade.put<T>('alerts/?id=' + id + '&status=' + status)) as unknown as Promise<
+      Message | ErrorMessage
     >
   },
 }
