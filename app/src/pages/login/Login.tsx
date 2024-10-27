@@ -37,7 +37,6 @@ const Login = () => {
       return
     }
 
-    // Call login function
     try {
       const data: LoginRequest = {
         username: state.email,
@@ -47,7 +46,6 @@ const Login = () => {
       const res: LoginResponse | ErrorMessage = await Client.login(data)
       if ('access_token' in res) {
         setResponse('Welcome back!')
-        // save token to local storage
         localStorage.setItem('token', res.access_token)
         setTimeout(() => {
           window.location.href = '/'

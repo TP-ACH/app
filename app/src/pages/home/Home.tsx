@@ -53,7 +53,7 @@ const Home = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const devicesRes: string[] | ErrorMessage = await Client.gerDevices<
+        const devicesRes: string[] | ErrorMessage = await Client.getDevices<
           { devices: string[] } | ErrorMessage
         >()
         if (Array.isArray(devicesRes)) {
