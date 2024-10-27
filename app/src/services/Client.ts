@@ -94,7 +94,7 @@ const Client = {
     >
   },
 
-  gerDevices: async <T>() => {
+  getDevices: async <T>() => {
     return (await apiFacade.get<T>('sensors/devices')) as unknown as Promise<
       string[] | ErrorMessage
     >

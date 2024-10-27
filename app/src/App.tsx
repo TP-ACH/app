@@ -3,7 +3,6 @@ import { Routes, Route } from 'react-router-dom'
 import { Home, Login, Register, Devices, Crop, Settings } from './pages'
 import './App.scss'
 
-// Verify token, rediect to login if not logged in
 const token = localStorage.getItem('token')
 if (!token && window.location.pathname !== '/login' && window.location.pathname !== '/register') {
   window.location.href = '/login'
