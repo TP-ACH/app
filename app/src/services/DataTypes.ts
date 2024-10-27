@@ -90,3 +90,14 @@ export interface SpeciesRules {
   rules_by_sensor?: SensorRule[]
   light_hours?: LightHours
 }
+
+export type AlertType = 'ok' | 'action' | 'error' | 'warning'
+export type AlertStatus = 'open' | 'pending' | 'closed'
+export interface Alert {
+  _id: string
+  device_id: string
+  type: AlertType
+  status: AlertStatus
+  topic: string
+  message: string
+}

@@ -1,5 +1,6 @@
 export { default as Client } from './Client'
 export type {
+  Message,
   LoginRequest,
   LoginResponse,
   ErrorMessage,
@@ -12,4 +13,7 @@ export type {
   DeviceRules,
   SpeciesRules,
   LightHours,
+  Alert,
+  AlertType,
+  AlertStatus,
 } from './DataTypes'
