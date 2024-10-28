@@ -36,14 +36,22 @@
 
 ## Setup (Docker)
 
-1. Copy .env.example and set your environment variables
+1. Go to app directory
+
+   ```sh
+   cd app
+   ```
+
+2. Copy .env.example and set your environment variables
 
    ```sh
    cp .env.example .env
    ```
 
-2. Start Docker
+3. Start Docker
 
    ```sh
    docker compose up -d
    ```
+
+- Make sure to run backend API
