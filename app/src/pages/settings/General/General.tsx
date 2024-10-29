@@ -152,23 +152,23 @@ const General = () => {
               Device
             </h4>
             <p className="text-tremor-default text-tremor-content dark:text-dark-tremor-content">
-              Select the default device for your workspace
+              Select the default device for your workspace.
             </p>
-            <div className="mt-6 sm:flex sm:items-center sm:space-x-2 w-1/2">
-              <Select
-                className="w-full [&>button]:rounded-tremor-small"
-                enableClear={false}
-                value={device}
-                onValueChange={handleOnChangeDevice}
-                placeholder="Select device"
-              >
-                {devices.map((device) => (
-                  <SelectItem key={device.id} value={device.id}>
-                    {device.name}
-                  </SelectItem>
-                ))}
-              </Select>
-            </div>
+          </div>
+          <div className="mt-6 sm:flex sm:items-center sm:space-x-2 w-full">
+            <Select
+              className="w-full [&>button]:rounded-tremor-small"
+              enableClear={false}
+              value={device}
+              onValueChange={handleOnChangeDevice}
+              placeholder="Select device"
+            >
+              {devices.map((device) => (
+                <SelectItem key={device.id} value={device.id}>
+                  {device.name}
+                </SelectItem>
+              ))}
+            </Select>
           </div>
 
           <div>
@@ -179,21 +179,21 @@ const General = () => {
               Select the species of the crop you are growing. This will override selected device
               rules.
             </p>
-            <div className="mt-6 sm:flex sm:items-center sm:space-x-2 w-1/2">
-              <Select
-                className="w-full [&>button]:rounded-tremor-small"
-                enableClear={false}
-                value={selectedSpecies}
-                onValueChange={handleOnChangeSpecies}
-                placeholder="Select species"
-              >
-                {species.map((species) => (
-                  <SelectItem key={species.id} value={species.id}>
-                    {species.name}
-                  </SelectItem>
-                ))}
-              </Select>
-            </div>
+          </div>
+          <div className="mt-6 sm:flex sm:items-center sm:space-x-2 w-full">
+            <Select
+              className="w-full [&>button]:rounded-tremor-small"
+              enableClear={false}
+              value={selectedSpecies}
+              onValueChange={handleOnChangeSpecies}
+              placeholder="Select species"
+            >
+              {species.map((species) => (
+                <SelectItem key={species.id} value={species.id}>
+                  {species.name}
+                </SelectItem>
+              ))}
+            </Select>
           </div>
         </div>
         <Divider className="my-10" />

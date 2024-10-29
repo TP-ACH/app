@@ -22,11 +22,12 @@ const Account = () => {
     username: '',
     first_name: '',
     last_name: '',
+    old_password: '',
+    new_password: '',
   })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [response, setResponse] = useState('')
-  //const [password, setPassword] = useState('')
 
   useEffect(() => {
     // Get user data from api
@@ -49,7 +50,7 @@ const Account = () => {
     fetchData()
   }, [])
 
-  function handleNameChange(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
     setError('')
     setResponse('')
     setUserData({ ...userData, [e.target.name]: e.target.value })
@@ -62,12 +63,30 @@ const Account = () => {
     setResponse('')
     if (!userData.first_name) {
       setError('Please enter a valid first name')
+      setLoading(false)
       return
     }
     if (!userData.last_name) {
       setError('Please enter a valid last name')
+      setLoading(false)
       return
     }
+
+    console.log(userData)
+    if (userData.old_password || userData.new_password) {
+      console.log('password')
+      if (!userData.old_password) {
+        setError('Please enter your current password')
+        setLoading(false)
+        return
+      }
+      if (!userData.new_password) {
+        setError('Please enter a new password')
+        setLoading(false)
+        return
+      }
+    }
+
     // Call login function
     try {
       const data: User = {
@@ -76,10 +95,20 @@ const Account = () => {
         last_name: userData.last_name,
       }
 
+      if (userData.old_password && userData.new_password) {
+        data.old_password = userData.old_password
+        data.new_password = userData.new_password
+      }
+
+      console.log(data)
+
       const res: User | ErrorMessage = await Client.updateUser(data)
       if ('first_name' in res) {
         setUserData(res)
         setResponse('Information updated')
+        setTimeout(() => {
+          setResponse('')
+        }, 2000)
       } else if ('error' in res) {
         setError(res.error)
       } else {
@@ -146,7 +175,7 @@ const Account = () => {
               name="first_name"
               placeholder={userData.first_name}
               value={userData.first_name}
-              onChange={handleNameChange}
+              onChange={handleInputChange}
               className="mt-2 w-full rounded-tremor-small sm:max-w-lg"
             />
           </div>
@@ -163,22 +192,13 @@ const Account = () => {
               name="last_name"
               placeholder={userData.last_name}
               value={userData.last_name}
-              onChange={handleNameChange}
+              onChange={handleInputChange}
               className="mt-2 w-full rounded-tremor-small sm:max-w-lg"
             />
           </div>
         </div>
-        <div className="text-right">
-          <button
-            type="submit"
-            className="mt-6 whitespace-nowrap rounded-tremor-small bg-tremor-brand px-4 py-2.5 text-tremor-default font-medium text-tremor-brand-inverted shadow-tremor-input hover:bg-tremor-brand-emphasis dark:bg-dark-tremor-brand dark:text-dark-tremor-brand-inverted dark:shadow-dark-tremor-input dark:hover:bg-dark-tremor-brand-emphasis"
-          >
-            Update
-          </button>
-        </div>
-      </form>
-      <Divider />
-      <form className="mt-6">
+
+        <Divider />
         <h4 className="font-semibold text-tremor-content-strong dark:text-dark-tremor-content-strong">
           Password
         </h4>
@@ -188,31 +208,35 @@ const Account = () => {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div className="mt-6">
             <label
-              htmlFor="current-password"
+              htmlFor="old_password"
               className="text-tremor-default font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong"
             >
               Current password
             </label>
             <TextInput
               type="password"
-              id="current-password"
-              name="current-password"
+              id="old_password"
+              name="old_password"
               placeholder=""
+              onChange={handleInputChange}
+              autoComplete="old_password"
               className="mt-2 w-full rounded-tremor-small sm:max-w-lg"
             />
           </div>
           <div className="mt-6">
             <label
-              htmlFor="new-password"
+              htmlFor="new_password"
               className="text-tremor-default font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong"
             >
               New password
             </label>
             <TextInput
               type="password"
-              id="new-password"
-              name="new-password"
+              id="new_password"
+              name="new_password"
               placeholder=""
+              onChange={handleInputChange}
+              autoComplete="new_password"
               className="mt-2 w-full rounded-tremor-small sm:max-w-lg"
             />
           </div>
@@ -222,7 +246,7 @@ const Account = () => {
             type="submit"
             className="mt-6 whitespace-nowrap rounded-tremor-small bg-tremor-brand px-4 py-2.5 text-tremor-default font-medium text-tremor-brand-inverted shadow-tremor-input hover:bg-tremor-brand-emphasis dark:bg-dark-tremor-brand dark:text-dark-tremor-brand-inverted dark:shadow-dark-tremor-input dark:hover:bg-dark-tremor-brand-emphasis"
           >
-            Update
+            Save settings
           </button>
         </div>
       </form>

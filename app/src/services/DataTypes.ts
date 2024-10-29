@@ -34,6 +34,8 @@ export interface User {
   username: string
   first_name: string
   last_name: string
+  old_password?: string
+  new_password?: string
 }
 
 export interface SensorRquest {

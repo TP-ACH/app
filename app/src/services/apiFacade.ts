@@ -43,6 +43,13 @@ instance.interceptors.response.use(
       return authError
     }
 
+    if (error.response.data.detail) {
+      const e = {
+        error: error.response.data.detail,
+      }
+      return e
+    }
+
     return Promise.reject(error)
   }
 )
