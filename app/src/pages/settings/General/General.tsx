@@ -1,67 +1,203 @@
 import React from 'react'
-import { Card, Switch, Divider } from '@tremor/react'
+import { useState, useEffect } from 'react'
+import { Divider, Select, SelectItem, Callout } from '@tremor/react'
+import { Client, DeviceRules, SpeciesRules, ErrorMessage } from '../../../services'
+import { RiAlarmWarningLine, RiCheckboxCircleLine } from '@remixicon/react'
 
 import './General.scss'
 
 const General = () => {
+  const [species, setSpecies] = useState<{ id: string; name: string }[]>([])
+  const [selectedSpecies, setSelectedSpecies] = useState('')
+  const [devices, setDevices] = useState<{ id: string; name: string }[]>([])
+  const [device, setDevice] = useState('')
+  const [error, setError] = useState('')
+  const [response, setResponse] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      let speciesList: { id: string; name: string }[] = []
+      let devicesList: { id: string; name: string }[] = []
+      try {
+        const speciesRes: { species: string[] } | ErrorMessage = await Client.getSpecies<
+          { species: string[] } | ErrorMessage
+        >()
+        if ('species' in speciesRes && Array.isArray(speciesRes.species)) {
+          speciesList = speciesRes.species.map((species) => {
+            return {
+              id: species,
+              name: species,
+            }
+          })
+          setSpecies(speciesList)
+        }
+
+        const devicesRes: string[] | ErrorMessage = await Client.getDevices<
+          { devices: string[] } | ErrorMessage
+        >()
+        if (Array.isArray(devicesRes)) {
+          devicesList = devicesRes.map((device) => {
+            return {
+              id: device,
+              name: device,
+            }
+          })
+          setDevices(devicesList)
+          if (localStorage.getItem('device')) {
+            setDevice(localStorage.getItem('device') || '')
+          } else if (devicesList.length > 0) {
+            setDevice(devicesList[0].id)
+          }
+        }
+
+        const defaultSpecies: DeviceRules | ErrorMessage = await Client.getDeviceRules(
+          devicesList[0].id
+        )
+        if ('species' in defaultSpecies && defaultSpecies.species) {
+          setSelectedSpecies(defaultSpecies.species)
+        } else {
+          setSelectedSpecies(speciesList[0].id)
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error)
+      }
+    }
+
+    fetchData()
+  }, [])
+
+  //handle device change
+  const handleOnChangeDevice = (value: string) => {
+    setDevice(value)
+  }
+
+  //handle species change
+  const handleOnChangeSpecies = (value: string) => {
+    setSelectedSpecies(value)
+  }
+
+  async function handleNameSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+    setResponse('')
+    if (!selectedSpecies) {
+      setError('Please select a species')
+      return
+    }
+    if (!device) {
+      setError('Please select a device')
+      return
+    }
+
+    try {
+      const defaultRules: SpeciesRules | ErrorMessage =
+        await Client.getDefaultRules(selectedSpecies)
+      console.log(defaultRules)
+      if ('error' in defaultRules) {
+        setError('Server error, please try again later')
+        return
+      }
+
+      const data: DeviceRules = {
+        device: device,
+        species: selectedSpecies,
+        rules_by_sensor: defaultRules.rules_by_sensor,
+        light_hours: defaultRules.light_hours,
+      }
+
+      // putDeviceRules
+      const response: ErrorMessage | { message: string } = await Client.putDeviceRules(data)
+      if ('error' in response) {
+        setError('Server error, please try again later')
+        return
+      }
+      // set device local storage
+      localStorage.setItem('device', device)
+      setResponse('Defaults updated successfully')
+    } catch (error) {
+      setError('Server error, please try again later')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (loading) {
+    return <div>Loading...</div>
+  }
+
   return (
     <div id="settings-general">
-      <form action="#" method="POST">
+      {error ? (
+        <Callout className="mt-4" title="Error" icon={RiAlarmWarningLine} color="rose">
+          {error}
+        </Callout>
+      ) : null}
+      {response ? (
+        <Callout className="mt-4" title="Success" icon={RiCheckboxCircleLine} color="teal">
+          {response}
+        </Callout>
+      ) : null}
+      <form onSubmit={handleNameSubmit} className="mt-6">
         <h3 className="mt-6 font-semibold text-tremor-content-strong dark:text-dark-tremor-content-strong">
           Workspace settings
         </h3>
         <p className="mt-2 text-tremor-default text-tremor-content dark:text-dark-tremor-content">
           Optimize your workspace with customizable settings and advanced features
         </p>
-        <div className="mt-8 space-y-6">
-          <Card className="max-w-xl overflow-hidden p-0">
-            <div className="border-b border-tremor-border bg-tremor-background-muted px-4 py-3 dark:border-dark-tremor-border dark:bg-dark-tremor-background-muted">
-              <label
-                htmlFor="feature-1"
-                className="text-tremor-default font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong"
+        <div className="mt-8 space-y-6 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-6">
+          <div>
+            <h4 className="font-semibold text-tremor-content-strong dark:text-dark-tremor-content-strong">
+              Device
+            </h4>
+            <p className="text-tremor-default text-tremor-content dark:text-dark-tremor-content">
+              Select the default device for your workspace
+            </p>
+            <div className="mt-6 sm:flex sm:items-center sm:space-x-2 w-1/2">
+              <Select
+                className="w-full [&>button]:rounded-tremor-small"
+                enableClear={false}
+                value={device}
+                onValueChange={handleOnChangeDevice}
+                placeholder="Select device"
               >
-                Enable beta analytics features
-              </label>
+                {devices.map((device) => (
+                  <SelectItem key={device.id} value={device.id}>
+                    {device.name}
+                  </SelectItem>
+                ))}
+              </Select>
             </div>
-            <div className="flex items-start space-x-10 p-4">
-              <p
-                id="feature-1-description"
-                className="text-tremor-default leading-6 text-tremor-content dark:text-dark-tremor-content"
+          </div>
+
+          <div>
+            <h4 className="font-semibold text-tremor-content-strong dark:text-dark-tremor-content-strong">
+              Species
+            </h4>
+            <p className="text-tremor-default text-tremor-content dark:text-dark-tremor-content">
+              Select the species of the crop you are growing. This will override selected device
+              rules.
+            </p>
+            <div className="mt-6 sm:flex sm:items-center sm:space-x-2 w-1/2">
+              <Select
+                className="w-full [&>button]:rounded-tremor-small"
+                enableClear={false}
+                value={selectedSpecies}
+                onValueChange={handleOnChangeSpecies}
+                placeholder="Select species"
               >
-                Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod
-                tempor invidunt ut labore et dolore magna aliquyam erat.
-              </p>
-              <Switch name="feature-1" id="feature-1" aria-describedby="feature-1-description" />
+                {species.map((species) => (
+                  <SelectItem key={species.id} value={species.id}>
+                    {species.name}
+                  </SelectItem>
+                ))}
+              </Select>
             </div>
-          </Card>
-          <Card className="max-w-xl overflow-hidden p-0">
-            <div className="border-b border-tremor-border bg-tremor-background-muted px-4 py-3 dark:border-dark-tremor-border dark:bg-dark-tremor-background-muted">
-              <label
-                htmlFor="feature-2"
-                className="text-tremor-default font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong"
-              >
-                Enable test mode
-              </label>
-            </div>
-            <div className="flex items-start space-x-10 p-4">
-              <p
-                id="feature-2-description"
-                className="text-tremor-default leading-6 text-tremor-content dark:text-dark-tremor-content"
-              >
-                Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod.
-              </p>
-              <Switch name="feature-2" id="feature-2" aria-describedby="feature-2-description" />
-            </div>
-          </Card>
+          </div>
         </div>
         <Divider className="my-10" />
         <div className="flex items-center justify-end space-x-4">
-          <button
-            type="button"
-            className="whitespace-nowrap rounded-tremor-small px-4 py-2.5 text-tremor-default font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong"
-          >
-            Cancel
-          </button>
           <button
             type="submit"
             className="whitespace-nowrap rounded-tremor-small bg-tremor-brand px-4 py-2.5 text-tremor-default font-medium text-tremor-brand-inverted shadow-tremor-input hover:bg-tremor-brand-emphasis dark:bg-dark-tremor-brand dark:text-dark-tremor-brand-inverted dark:shadow-dark-tremor-input dark:hover:bg-dark-tremor-brand-emphasis"

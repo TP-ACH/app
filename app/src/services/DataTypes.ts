@@ -70,6 +70,7 @@ export interface Rule {
   }
 }
 export interface LightHours {
+  enabled: boolean
   start: string
   end: string
 }

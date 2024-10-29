@@ -30,7 +30,7 @@ const Settings = () => {
                   General
                 </div>
               </Tab>
-              <Tab>
+              <Tab className="hidden">
                 <div className="flex items-center space-x-2">
                   <Icon icon={RiNotification2Line} className="pl-0" />
                   Notifications

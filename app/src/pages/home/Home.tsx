@@ -64,7 +64,9 @@ const Home = () => {
             }
           })
           setDevices(devicesList)
-          if (devicesList.length > 0) {
+          if (localStorage.getItem('device')) {
+            setDevice(localStorage.getItem('device') || '')
+          } else if (devicesList.length > 0) {
             setDevice(devicesList[0].id)
           }
         }

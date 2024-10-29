@@ -24,9 +24,9 @@ import LightDevice from './Light/LightDevice'
 import FloaterDevice from './Water/FloaterDevice'
 
 const Devices = () => {
-  const [interval, setInterval] = useState('30-d')
+  const [interval, setInterval] = useState('30-m')
   const [species, setSpecies] = useState<{ id: string; name: string }[]>([])
-  const [selectedSpecies, setSelectedSpecies] = useState('')
+  const [selectedSpecies, setSelectedSpecies] = useState('default')
   const [devices, setDevices] = useState<{ id: string; name: string }[]>([])
   const [device, setDevice] = useState('')
 
@@ -59,7 +59,9 @@ const Devices = () => {
             }
           })
           setDevices(devicesList)
-          if (devicesList.length > 0) {
+          if (localStorage.getItem('device')) {
+            setDevice(localStorage.getItem('device') || '')
+          } else if (devicesList.length > 0) {
             setDevice(devicesList[0].id)
           }
         }

@@ -1,6 +1,6 @@
 import React from 'react'
 import { useState, useEffect } from 'react'
-import { Card, Tracker, Divider, Button, Callout } from '@tremor/react'
+import { Card, Tracker, Switch, Divider, Button, Callout } from '@tremor/react'
 import { Client, LightHours, DeviceRules, SpeciesRules, ErrorMessage } from '../../../services'
 import { RiCheckboxCircleLine } from '@remixicon/react'
 
@@ -65,6 +65,7 @@ const LightDevice: React.FC<LightDeviceProps> = ({ species, device }) => {
     start: '',
     end: '',
   })
+  const [isEnabledState, setIsEnabledState] = useState(false)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -80,6 +81,7 @@ const LightDevice: React.FC<LightDeviceProps> = ({ species, device }) => {
           setRules(null)
         } else {
           setError('')
+          setIsEnabledState(rule.enabled)
           setRules(rule)
           setLightRule({ start: rule.start, end: rule.end })
           // change the color of the tracker based on the rule
@@ -154,6 +156,7 @@ const LightDevice: React.FC<LightDeviceProps> = ({ species, device }) => {
     const deviceRules: DeviceRules = {
       device: device,
       light_hours: {
+        enabled: isEnabledState,
         start: lightRule.start,
         end: lightRule.end,
       },
@@ -162,6 +165,28 @@ const LightDevice: React.FC<LightDeviceProps> = ({ species, device }) => {
     const response = await Client.putDeviceRules(deviceRules)
     if ('message' in response) {
       setUpdated(response.message)
+      setTimeout(() => {
+        setUpdated('')
+      }, 2000)
+    }
+  }
+
+  const handleSwitch = async () => {
+    const isEnabled = !isEnabledState
+    setIsEnabledState(isEnabled)
+
+    const deviceRules: DeviceRules = {
+      device: device,
+      light_hours: {
+        enabled: isEnabled,
+        start: lightRule.start,
+        end: lightRule.end,
+      },
+    }
+
+    const response = await Client.putDeviceRules(deviceRules)
+    if ('message' in response) {
+      setUpdated(isEnabled ? 'Rule enabled' : 'Rule disabled')
       setTimeout(() => {
         setUpdated('')
       }, 2000)
@@ -186,49 +211,58 @@ const LightDevice: React.FC<LightDeviceProps> = ({ species, device }) => {
               <Tracker data={dailyTracker} className="mt-2 m-auto" />
             </div>
             <Divider className="my-10">Settings</Divider>
-            {updated != '' ? (
-              <Callout className="mt-4" title="Success" icon={RiCheckboxCircleLine} color="teal">
-                {updated}
-              </Callout>
-            ) : null}
+
             <div className="flex flex-col w-1/2 m-auto">
+              {updated != '' ? (
+                <Callout className="mt-4" title="Success" icon={RiCheckboxCircleLine} color="teal">
+                  {updated}
+                </Callout>
+              ) : null}
               <p className="text-tremor-default font-bold text-tremor-content dark:text-dark-tremor-content text-center">
                 Change light schedule
               </p>
               <div className="flex flex-row justify-between align-center mt-4">
-                <label htmlFor="start">Start time:</label>
-                <input
-                  type="time"
-                  id="start"
-                  name="start"
-                  step="3600000"
-                  min={lightRule.start}
-                  max={lightRule.end}
-                  defaultValue={lightRule.start}
-                  value={lightRule.start}
-                  onChange={handleTimeChange}
-                />
+                <label htmlFor="enabled">Enable light schedule:</label>
+                <Switch checked={isEnabledState} onChange={handleSwitch} />
               </div>
-              <div className="flex flex-row justify-between align-center mt-4">
-                <label htmlFor="end">End time:</label>
-                <input
-                  type="time"
-                  id="end"
-                  name="end"
-                  step="3600000"
-                  min={lightRule.start}
-                  max={lightRule.end}
-                  defaultValue={lightRule.end}
-                  value={lightRule.end}
-                  onChange={handleTimeChange}
-                />
-              </div>
-              <Divider className="px-4" />
-              <div className="p-4 pt-0 text-right">
-                <Button type="submit" onClick={handleSave}>
-                  Save
-                </Button>
-              </div>
+              {isEnabledState ? (
+                <>
+                  <div className="flex flex-row justify-between align-center mt-4">
+                    <label htmlFor="start">Start time:</label>
+                    <input
+                      type="time"
+                      id="start"
+                      name="start"
+                      step="3600000"
+                      min={lightRule.start}
+                      max={lightRule.end}
+                      defaultValue={lightRule.start}
+                      value={lightRule.start}
+                      onChange={handleTimeChange}
+                    />
+                  </div>
+                  <div className="flex flex-row justify-between align-center mt-4">
+                    <label htmlFor="end">End time:</label>
+                    <input
+                      type="time"
+                      id="end"
+                      name="end"
+                      step="3600000"
+                      min={lightRule.start}
+                      max={lightRule.end}
+                      defaultValue={lightRule.end}
+                      value={lightRule.end}
+                      onChange={handleTimeChange}
+                    />
+                  </div>
+                  <Divider className="px-4" />
+                  <div className="p-4 pt-0 text-right">
+                    <Button type="submit" onClick={handleSave}>
+                      Save
+                    </Button>
+                  </div>{' '}
+                </>
+              ) : null}
             </div>
           </div>
         ) : (

@@ -46,9 +46,9 @@ const getFloaterData = async (interval: string, device: string) => {
   DeviceData.current = response.floater?.data[response.floater.data.length - 1].reading || 0
 
   DeviceData.values =
-    response.floater?.data.map((item) => {
+    response.floater?.data.map((item, index) => {
       return {
-        key: item.created_at,
+        key: index.toString(),
         color: item.reading ? 'emerald' : 'red',
         tooltip: (item.reading ? 'Full' : 'Empty') + ' tank' + ' at ' + item.created_at,
       }
@@ -116,7 +116,7 @@ const FloaterDevice: React.FC<FloaterDeviceProps> = ({ interval, device }) => {
               </p>
             )}
             <div className="text-center py-4">
-              <Tracker data={data.values} className="mt-2 m-auto" />
+              <Tracker data={data.values.slice(0).slice(-20)} className="mt-2 m-auto" />
             </div>
           </Card>
         </div>
