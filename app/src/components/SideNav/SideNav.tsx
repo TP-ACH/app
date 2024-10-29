@@ -8,7 +8,6 @@ import {
   RiHome2Line,
   RiSettings5Line,
   RiLogoutBoxLine,
-  RiStarLine,
   RiCpuLine,
 } from '@remixicon/react'
 import logo from '../../assets/logo.png'
@@ -26,11 +25,6 @@ const SideNav = () => {
       label: 'Devices',
       icon: RiCpuLine,
       link: '/devices',
-    },
-    {
-      label: 'Crop',
-      icon: RiStarLine,
-      link: '/crop',
     },
     {
       label: 'Settings',
