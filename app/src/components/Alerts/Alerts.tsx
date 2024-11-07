@@ -120,7 +120,7 @@ const Alerts = ({ device }: { device: string }) => {
             <AccordionHeader className="text-sm font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong [&>.tremor-AccordionHeader-children]:items-center">
               {getIcon(alert.type)}
               <p className="text-tremor-default text-tremor-content dark:text-dark-tremor-content">
-                {getTitle(alert.type, alert.title)}
+                {alert.title}
               </p>
             </AccordionHeader>
             <AccordionBody className="leading-6">
