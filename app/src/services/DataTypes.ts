@@ -102,5 +102,6 @@ export interface Alert {
   type: AlertType
   status: AlertStatus
   topic: string
+  title: string
   message: string
 }

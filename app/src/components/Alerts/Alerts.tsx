@@ -42,20 +42,18 @@ const getColor = (type: AlertType) => {
   }
 }
 
-const getTitle = (type: AlertType, topic: string) => {
-  const newTopic = topic.replace(/_/g, ' ')
-
+const getTitle = (type: AlertType, title: string) => {
   switch (type) {
     case 'ok':
-      return `Everything is fine: ${newTopic}`
+      return `Everything is fine: ${title}`
     case 'action':
-      return `Action required: ${newTopic}`
+      return `Action required: ${title}`
     case 'error':
-      return `Error: ${newTopic}`
+      return `Error: ${title}`
     case 'warning':
-      return `Warning: ${newTopic}`
+      return `Warning: ${title}`
     default:
-      return `Warning: ${newTopic}`
+      return `Warning: ${title}`
   }
 }
 
@@ -122,7 +120,7 @@ const Alerts = ({ device }: { device: string }) => {
             <AccordionHeader className="text-sm font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong [&>.tremor-AccordionHeader-children]:items-center">
               {getIcon(alert.type)}
               <p className="text-tremor-default text-tremor-content dark:text-dark-tremor-content">
-                {getTitle(alert.type, alert.topic)}
+                {getTitle(alert.type, alert.title)}
               </p>
             </AccordionHeader>
             <AccordionBody className="leading-6">
