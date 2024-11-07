@@ -91,17 +91,18 @@ const LightDevice: React.FC<LightDeviceProps> = ({ species, device }) => {
             if (dailyTracker[i].key === rule.start) {
               paint = true
             }
+            if (dailyTracker[i].key === rule.end) {
+              dailyTracker[i].color = 'red'
+              dailyTracker[i].tooltip = 'Off' + ' at ' + dailyTracker[i].key
+              paint = false
+            }
+
             if (paint) {
               dailyTracker[i].color = 'emerald'
               dailyTracker[i].tooltip = 'On' + ' at ' + dailyTracker[i].key
             } else {
               dailyTracker[i].color = 'red'
               dailyTracker[i].tooltip = 'Off' + ' at ' + dailyTracker[i].key
-            }
-            if (dailyTracker[i].key === rule.end) {
-              dailyTracker[i].color = 'red'
-              dailyTracker[i].tooltip = 'On' + ' till ' + dailyTracker[i].key
-              paint = false
             }
           }
           setDailyTracker(dailyTracker)
@@ -140,17 +141,18 @@ const LightDevice: React.FC<LightDeviceProps> = ({ species, device }) => {
       if (dailyTracker[i].key === newLightRule.start) {
         paint = true
       }
+      if (dailyTracker[i].key === newLightRule.end) {
+        dailyTracker[i].color = 'red'
+        dailyTracker[i].tooltip = 'Off' + ' at ' + dailyTracker[i].key
+        paint = false
+      }
+
       if (paint) {
         dailyTracker[i].color = 'emerald'
         dailyTracker[i].tooltip = 'On' + ' at ' + dailyTracker[i].key
       } else {
         dailyTracker[i].color = 'red'
         dailyTracker[i].tooltip = 'Off' + ' at ' + dailyTracker[i].key
-      }
-      if (dailyTracker[i].key === newLightRule.end) {
-        dailyTracker[i].color = 'red'
-        dailyTracker[i].tooltip = 'On' + ' till ' + dailyTracker[i].key
-        paint = false
       }
     }
     setDailyTracker(dailyTracker)
