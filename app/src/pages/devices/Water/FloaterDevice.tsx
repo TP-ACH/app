@@ -49,8 +49,8 @@ const getFloaterData = async (interval: string, device: string) => {
     response.floater?.data.map((item, index) => {
       return {
         key: index.toString(),
-        color: item.reading ? 'emerald' : 'red',
-        tooltip: (item.reading ? 'Full' : 'Empty') + ' tank' + ' at ' + item.created_at,
+        color: item.reading ? 'red' : 'emerald',
+        tooltip: (item.reading ? 'Empty' : 'Full') + ' tank' + ' at ' + item.created_at,
       }
     }) || []
 
@@ -104,7 +104,7 @@ const FloaterDevice: React.FC<FloaterDeviceProps> = ({ interval, device }) => {
       {data ? (
         <div id="floater">
           <Card>
-            {data.current ? (
+            {!data.current ? (
               <p className="text-tremor-default font-bold text-tremor-content dark:text-dark-tremor-content text-center py-4 flex flex-col justify-center	justify-items-center">
                 <span className="text-center">Water tank is full</span>
                 <Icon size="xl" icon={RiCheckboxCircleFill} />
