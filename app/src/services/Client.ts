@@ -113,9 +113,9 @@ const Client = {
   },
 
   putAlerts: async <T>(id: string, status: AlertStatus) => {
-    return (await apiFacade.put<T>('alerts/?id=' + id + '&status=' + status)) as unknown as Promise<
-      Message | ErrorMessage
-    >
+    return (await apiFacade.put<T>(
+      'alerts/?id=' + id + '&new_status=' + status
+    )) as unknown as Promise<Message | ErrorMessage>
   },
 }
 
