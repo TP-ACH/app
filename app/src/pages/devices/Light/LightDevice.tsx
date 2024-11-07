@@ -99,6 +99,7 @@ const LightDevice: React.FC<LightDeviceProps> = ({ species, device }) => {
               dailyTracker[i].tooltip = 'Off' + ' at ' + dailyTracker[i].key
             }
             if (dailyTracker[i].key === rule.end) {
+              dailyTracker[i].color = 'red'
               dailyTracker[i].tooltip = 'On' + ' till ' + dailyTracker[i].key
               paint = false
             }
@@ -147,6 +148,7 @@ const LightDevice: React.FC<LightDeviceProps> = ({ species, device }) => {
         dailyTracker[i].tooltip = 'Off' + ' at ' + dailyTracker[i].key
       }
       if (dailyTracker[i].key === newLightRule.end) {
+        dailyTracker[i].color = 'red'
         dailyTracker[i].tooltip = 'On' + ' till ' + dailyTracker[i].key
         paint = false
       }
