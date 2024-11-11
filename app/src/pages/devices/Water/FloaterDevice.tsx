@@ -60,9 +60,10 @@ const getFloaterData = async (interval: string, device: string) => {
 interface FloaterDeviceProps {
   interval: string
   device: string
+  onlyCurrent?: boolean
 }
 
-const FloaterDevice: React.FC<FloaterDeviceProps> = ({ interval, device }) => {
+const FloaterDevice: React.FC<FloaterDeviceProps> = ({ interval, device, onlyCurrent }) => {
   const [data, setData] = useState<DeviceData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -96,8 +97,45 @@ const FloaterDevice: React.FC<FloaterDeviceProps> = ({ interval, device }) => {
     fetchData()
   }, [interval, device])
 
-  if (loading) return <div>Loading...</div>
-  if (error) return <div>{error}</div>
+  if (loading)
+    return (
+      <Card>
+        <div>Loading...</div>
+      </Card>
+    )
+  if (error)
+    return (
+      <Card>
+        <div>{error}</div>
+      </Card>
+    )
+
+  if (onlyCurrent)
+    return (
+      <div>
+        {data ? (
+          <div id="floater">
+            <Card>
+              {!data.current ? (
+                <p className="text-tremor-default font-bold text-tremor-content dark:text-dark-tremor-content text-center flex flex-col justify-center justify-items-center">
+                  <span className="text-center">Water tank is full</span>
+                  <Icon size="xl" icon={RiCheckboxCircleFill} />
+                </p>
+              ) : (
+                <p className="text-tremor-default font-bold text-tremor-content dark:text-dark-tremor-content text-center flex flex-col justify-center justify-items-center">
+                  <span className="text-center">Water tank is empty</span>
+                  <Icon size="xl" icon={RiErrorWarningFill} color="rose" />
+                </p>
+              )}
+            </Card>
+          </div>
+        ) : (
+          <Card>
+            <div>No data available</div>
+          </Card>
+        )}
+      </div>
+    )
 
   return (
     <div>
@@ -121,7 +159,9 @@ const FloaterDevice: React.FC<FloaterDeviceProps> = ({ interval, device }) => {
           </Card>
         </div>
       ) : (
-        <div>No data available</div>
+        <Card>
+          <div>No data available</div>
+        </Card>
       )}
     </div>
   )

@@ -150,9 +150,10 @@ interface ECDeviceProps {
   interval: string
   species: string
   device: string
+  onlyData?: boolean
 }
 
-const ECDevice: React.FC<ECDeviceProps> = ({ interval, species, device }) => {
+const ECDevice: React.FC<ECDeviceProps> = ({ interval, species, device, onlyData }) => {
   const [ruleData, setRules] = useState<RuleData[]>([])
   const [data, setData] = useState<DeviceData | null>(null)
   const [loading, setLoading] = useState(true)
@@ -218,8 +219,51 @@ const ECDevice: React.FC<ECDeviceProps> = ({ interval, species, device }) => {
     setRules(newRules)
   }
 
-  if (loading) return <div>Loading...</div>
-  if (error) return <div>{error}</div>
+  if (loading)
+    return (
+      <Card>
+        <div>Loading...</div>
+      </Card>
+    )
+  if (error)
+    return (
+      <Card>
+        <div>{error}</div>
+      </Card>
+    )
+
+  if (onlyData)
+    return (
+      <div>
+        {data ? (
+          <div id="ec">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <Card className="rounded-tremor-small p-2 col-span-2">
+                <div className="border-b border-tremor-border px-4 py-2 dark:border-dark-tremor-border">
+                  <h3 className="text-tremor-default font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong">
+                    EC Level
+                  </h3>
+                </div>
+                <LineChart
+                  className="h-60 px-2"
+                  data={data.values}
+                  index="time"
+                  showXAxis={false}
+                  categories={['EC', 'min', 'max']}
+                  colors={['emerald', 'red', 'red']}
+                  minValue={0}
+                  maxValue={3}
+                />
+              </Card>
+            </div>
+          </div>
+        ) : (
+          <Card>
+            <div>No data available</div>
+          </Card>
+        )}
+      </div>
+    )
 
   return (
     <div>
@@ -323,7 +367,9 @@ const ECDevice: React.FC<ECDeviceProps> = ({ interval, species, device }) => {
           </div>
         </div>
       ) : (
-        <div>No data available</div>
+        <Card>
+          <div>No data available</div>
+        </Card>
       )}
     </div>
   )

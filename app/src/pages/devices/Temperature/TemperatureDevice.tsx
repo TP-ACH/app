@@ -103,7 +103,7 @@ const getTemperatureData = async (interval: string, device: string, rules: RuleD
     threshold: { min: 0, max: 0 },
     interval: '',
     current: 0,
-    unit: '',
+    unit: '°C',
     title: 'Temperature',
   }
 
@@ -158,9 +158,15 @@ interface TemperatureDeviceProps {
   interval: string
   species: string
   device: string
+  onlyCurrent?: boolean
 }
 
-const TemperatureDevice: React.FC<TemperatureDeviceProps> = ({ interval, species, device }) => {
+const TemperatureDevice: React.FC<TemperatureDeviceProps> = ({
+  interval,
+  species,
+  device,
+  onlyCurrent,
+}) => {
   const [ruleData, setRules] = useState<RuleData[]>([])
   const [data, setData] = useState<DeviceData | null>(null)
   const [loading, setLoading] = useState(true)
@@ -226,8 +232,49 @@ const TemperatureDevice: React.FC<TemperatureDeviceProps> = ({ interval, species
     setRules(newRules)
   }
 
-  if (loading) return <div>Loading...</div>
-  if (error) return <div>{error}</div>
+  if (loading)
+    return (
+      <Card>
+        <div>Loading...</div>
+      </Card>
+    )
+  if (error)
+    return (
+      <Card>
+        <div>{error}</div>
+      </Card>
+    )
+
+  if (onlyCurrent)
+    return (
+      <div>
+        {data ? (
+          <div id="temperature">
+            <Card className="h-36 rounded-tremor-small p-2">
+              <p className="text-tremor-default font-bold text-tremor-content dark:text-dark-tremor-content text-center py-4">
+                <span>
+                  Current Temperature {data.current} {data.unit}
+                </span>
+              </p>
+              <CategoryBar
+                values={[
+                  data.threshold.min,
+                  data.threshold.max - data.threshold.min,
+                  45 - data.threshold.max,
+                ]}
+                colors={['rose', 'emerald', 'rose']}
+                markerValue={data.current}
+                className="px-4"
+              />
+            </Card>
+          </div>
+        ) : (
+          <Card>
+            <div>No data available</div>
+          </Card>
+        )}
+      </div>
+    )
 
   return (
     <div>
@@ -331,7 +378,9 @@ const TemperatureDevice: React.FC<TemperatureDeviceProps> = ({ interval, species
           </div>
         </div>
       ) : (
-        <div>No data available</div>
+        <Card>
+          <div>No data available</div>
+        </Card>
       )}
     </div>
   )

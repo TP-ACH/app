@@ -151,9 +151,10 @@ interface PHDeviceProps {
   interval: string
   species: string
   device: string
+  onlyData?: boolean
 }
 
-const PHDevice: React.FC<PHDeviceProps> = ({ interval, species, device }) => {
+const PHDevice: React.FC<PHDeviceProps> = ({ interval, species, device, onlyData }) => {
   const [ruleData, setRules] = useState<RuleData[]>([])
   const [data, setData] = useState<DeviceData | null>(null)
   const [loading, setLoading] = useState(true)
@@ -219,8 +220,51 @@ const PHDevice: React.FC<PHDeviceProps> = ({ interval, species, device }) => {
     setRules(newRules)
   }
 
-  if (loading) return <div>Loading...</div>
-  if (error) return <div>{error}</div>
+  if (loading)
+    return (
+      <Card>
+        <div>Loading...</div>
+      </Card>
+    )
+  if (error)
+    return (
+      <Card>
+        <div>{error}</div>
+      </Card>
+    )
+
+  if (onlyData)
+    return (
+      <div>
+        {data ? (
+          <div id="ph">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <Card className="rounded-tremor-small p-2 col-span-2">
+                <div className="border-b border-tremor-border px-4 py-2 dark:border-dark-tremor-border">
+                  <h3 className="text-tremor-default font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong">
+                    PH Level
+                  </h3>
+                </div>
+                <LineChart
+                  className="h-60 px-2"
+                  data={data.values}
+                  index="time"
+                  showXAxis={false}
+                  categories={['PH', 'min', 'max']}
+                  colors={['emerald', 'red', 'red']}
+                  minValue={1}
+                  maxValue={14}
+                />
+              </Card>
+            </div>
+          </div>
+        ) : (
+          <Card>
+            <div>No data available</div>
+          </Card>
+        )}
+      </div>
+    )
 
   return (
     <div>
@@ -326,7 +370,9 @@ const PHDevice: React.FC<PHDeviceProps> = ({ interval, species, device }) => {
           </div>
         </div>
       ) : (
-        <div>No data available</div>
+        <Card>
+          <div>No data available</div>
+        </Card>
       )}
     </div>
   )

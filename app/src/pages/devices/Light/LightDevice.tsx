@@ -28,9 +28,10 @@ const getLightRules = async (species: string, device: string) => {
 interface LightDeviceProps {
   species: string
   device: string
+  onlyCurrent?: boolean
 }
 
-const LightDevice: React.FC<LightDeviceProps> = ({ species, device }) => {
+const LightDevice: React.FC<LightDeviceProps> = ({ species, device, onlyCurrent }) => {
   const [ruleData, setRules] = useState<LightHours | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -199,8 +200,39 @@ const LightDevice: React.FC<LightDeviceProps> = ({ species, device }) => {
     }
   }
 
-  if (loading) return <div>Loading...</div>
-  if (error) return <div>{error}</div>
+  if (loading)
+    return (
+      <Card>
+        <div>Loading...</div>
+      </Card>
+    )
+  if (error)
+    return (
+      <Card>
+        <div>{error}</div>
+      </Card>
+    )
+
+  if (onlyCurrent)
+    return (
+      <div id="Light">
+        <Card>
+          {ruleData ? (
+            <div>
+              <p className="text-tremor-default font-bold text-tremor-content dark:text-dark-tremor-content text-center">
+                Light will be turned on at {lightRule.start} and turned off at {lightRule.end}
+              </p>
+            </div>
+          ) : (
+            <Card>
+              <Card>
+                <div>No data available</div>
+              </Card>
+            </Card>
+          )}
+        </Card>
+      </div>
+    )
 
   return (
     <div id="Light">
@@ -272,7 +304,9 @@ const LightDevice: React.FC<LightDeviceProps> = ({ species, device }) => {
             </div>
           </div>
         ) : (
-          <div>No data available</div>
+          <Card>
+            <div>No data available</div>
+          </Card>
         )}
       </Card>
     </div>

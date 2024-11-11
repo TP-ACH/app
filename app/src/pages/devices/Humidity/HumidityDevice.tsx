@@ -103,7 +103,7 @@ const getHumidityData = async (interval: string, device: string, rules: RuleData
     threshold: { min: 0, max: 0 },
     interval: '',
     current: 0,
-    unit: '',
+    unit: '%',
     title: 'Humidity',
   }
 
@@ -157,9 +157,15 @@ interface HumidityDeviceProps {
   interval: string
   species: string
   device: string
+  onlyCurrent?: boolean
 }
 
-const HumidityDevice: React.FC<HumidityDeviceProps> = ({ interval, species, device }) => {
+const HumidityDevice: React.FC<HumidityDeviceProps> = ({
+  interval,
+  species,
+  device,
+  onlyCurrent,
+}) => {
   const [ruleData, setRules] = useState<RuleData[]>([])
   const [data, setData] = useState<DeviceData | null>(null)
   const [loading, setLoading] = useState(true)
@@ -225,8 +231,49 @@ const HumidityDevice: React.FC<HumidityDeviceProps> = ({ interval, species, devi
     setRules(newRules)
   }
 
-  if (loading) return <div>Loading...</div>
-  if (error) return <div>{error}</div>
+  if (loading)
+    return (
+      <Card>
+        <div>Loading...</div>
+      </Card>
+    )
+  if (error)
+    return (
+      <Card>
+        <div>{error}</div>
+      </Card>
+    )
+
+  if (onlyCurrent)
+    return (
+      <div>
+        {data ? (
+          <div id="humidity">
+            <Card className="h-36 rounded-tremor-small p-2">
+              <p className="text-tremor-default font-bold text-tremor-content dark:text-dark-tremor-content text-center py-4">
+                <span>
+                  Current Humidity {data.current} {data.unit}
+                </span>
+              </p>
+              <CategoryBar
+                values={[
+                  data.threshold.min,
+                  data.threshold.max - data.threshold.min,
+                  100 - data.threshold.max,
+                ]}
+                colors={['rose', 'emerald', 'rose']}
+                markerValue={data.current}
+                className="px-4"
+              />
+            </Card>
+          </div>
+        ) : (
+          <Card>
+            <div>No data available</div>
+          </Card>
+        )}
+      </div>
+    )
 
   return (
     <div>
@@ -330,7 +377,9 @@ const HumidityDevice: React.FC<HumidityDeviceProps> = ({ interval, species, devi
           </div>
         </div>
       ) : (
-        <div>No data available</div>
+        <Card>
+          <div>No data available</div>
+        </Card>
       )}
     </div>
   )
