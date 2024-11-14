@@ -1,8 +1,11 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
     "paths": {
-      "/*": ["./*", "./public/*"]
-    }
+      "/*": ["./*", "./public/*"],
+      "src/*": ["./src/*"]
+    },
+    "types": ["node"]
   },
   "files": [],
   "references": [

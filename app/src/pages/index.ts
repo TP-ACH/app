@@ -1,0 +1,6 @@
+export { default as Home } from './home/Home'
+export { default as Login } from './login/Login'
+export { default as Register } from './register/Register'
+export { default as Devices } from './devices/Devices'
+export { default as Crop } from './crop/Crop'
+export { default as Settings } from './settings/Settings'

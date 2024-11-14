@@ -2,6 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  @apply bg-gray-100 text-gray-900;
+body {
+  @apply bg-emerald-50 m-0 p-0;
 }

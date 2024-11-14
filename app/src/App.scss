@@ -1,6 +1,16 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+#app {
+  &:has(#side-nav) {
+    margin: 0 auto;
+    text-align: center;
+    padding-top: 75px;
+
+    padding-left: 20vw;
+
+    &.hide-nav {
+      padding-left: 0;
+      #side-nav {
+        width: 0;
+      }
+    }
+  }
 }

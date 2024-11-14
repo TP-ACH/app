@@ -17,11 +17,11 @@ export default {
         // light mode
         tremor: {
           brand: {
-            faint: colors.blue[50],
-            muted: colors.blue[200],
-            subtle: colors.blue[400],
-            DEFAULT: colors.blue[500],
-            emphasis: colors.blue[700],
+            faint: colors.emerald[50],
+            muted: colors.emerald[200],
+            subtle: colors.emerald[400],
+            DEFAULT: colors.emerald[500],
+            emphasis: colors.emerald[700],
             inverted: colors.white,
           },
           background: {
@@ -91,10 +91,10 @@ export default {
         'tremor-full': '9999px',
       },
       fontSize: {
-        'tremor-label': ['0.75rem', { lineHeight: '1rem' }],
-        'tremor-default': ['0.875rem', { lineHeight: '1.25rem' }],
-        'tremor-title': ['1.125rem', { lineHeight: '1.75rem' }],
-        'tremor-metric': ['1.875rem', { lineHeight: '2.25rem' }],
+        'tremor-label': ['0.875rem', { lineHeight: '1.25rem' }],
+        'tremor-default': ['1.125rem', { lineHeight: '1.75rem' }],
+        'tremor-title': ['1.875rem', { lineHeight: '2.25rem' }],
+        'tremor-metric': ['2rem', { lineHeight: '2.50rem' }],
       },
     },
   },
